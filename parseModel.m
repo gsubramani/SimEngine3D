@@ -35,12 +35,13 @@ end
 attributes = [];
 markerIndex = 0;
 partIndex = 0;
+jointIndex = 0;
 for i = 1:length(lines)
     lineItem = lines{i};
     if(strcmp(lineItem(1),'MARKER'))
         markerIndex = markerIndex + 1;
-        attributes.markers(markerIndex).id = lineItem(2);
-        attributes.markers(markerIndex).part = lineItem(4);
+        attributes.markers(markerIndex).id = str2double(lineItem(2));
+        attributes.markers(markerIndex).part = str2double(lineItem(4));
         attributes.markers(markerIndex).qp = [0, 0, 0]';
         attributes.markers(markerIndex).reuler = [0, 0, 0]';
         if(length(lineItem) <5)
@@ -59,7 +60,7 @@ for i = 1:length(lines)
     end
     if(strcmp(lineItem(1),'PART'))
         partIndex = partIndex + 1;
-        attributes.parts(partIndex).id = lineItem(2);
+        attributes.parts(partIndex).id = str2double(lineItem(2));
         attributes.parts(partIndex).m = 0;
         attributes.parts(partIndex).cm = [0 0 0]';
         attributes.parts(partIndex).j = [1 0 0;0 1 0;0 0 1];
@@ -67,7 +68,7 @@ for i = 1:length(lines)
         attributes.parts(partIndex).ground = 0;
         for anItem = 1:length(lineItem)
             if(strcmp(lineItem(anItem),'MASS'))
-                attributes.parts(partIndex).m = lineItem(anItem + 1);
+                attributes.parts(partIndex).m = str2double(lineItem(anItem + 1));
             end
             if(strcmp(lineItem(anItem),'CM'))
                 attributes.parts(partIndex).cm= ...
@@ -84,8 +85,31 @@ for i = 1:length(lines)
             if(strcmp(lineItem(anItem),'GROUND'))
                 attributes.parts(partIndex).ground = 1;
             end
-
         end
     end
-    
+    if(strcmp(lineItem(1),'JOINT'))
+        jointIndex = jointIndex + 1;
+        attributes.joints(jointIndex).id = str2double(lineItem(2));
+        attributes.joints(jointIndex).type = lineItem(3);
+        attributes.joints(jointIndex).i = NaN;
+        attributes.joints(jointIndex).j = NaN;
+    for anItem = 1:length(lineItem)
+            if(strcmp(lineItem(anItem),'I'))
+                attributes.joints(jointIndex).i ...
+                    = str2double(lineItem(anItem + 1));
+            end
+            if(strcmp(lineItem(anItem),'D'))
+                attributes.joints(jointIndex).d ...
+                    = str2double(lineItem(anItem + 1));
+            end
+            if(strcmp(lineItem(anItem),'J'))
+                attributes.joints(jointIndex).j ...
+                    = str2double(lineItem(anItem + 1));
+            end
+            if(strcmp(lineItem(anItem),'CD'))
+                attributes.joints(jointIndex).c ...
+                    = str2double(lineItem(anItem + 1:anItem + 3));
+            end
+    end   
+    end
 end
