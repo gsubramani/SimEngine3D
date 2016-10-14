@@ -153,7 +153,6 @@ for i = 1:length(lines)
             %        = str2double(lineItem(anItem + 1:anItem + 3))';
             %end  
                 if(strcmp(lineItem(anItem),'C'))
-                    lineItem(anItem)
                     attributes.joints(jointIndex).c ...
                         = str2double(lineItem(anItem + 1:anItem + 3))';
                     

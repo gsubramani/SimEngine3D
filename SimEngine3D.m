@@ -58,12 +58,12 @@ classdef SimEngine3D
                 if(flag == 2)
                     varargout{2} = -f(2);
                     varargout{3} = -ai'*getB(pdotj,aj_)*pdotj ...
-                        - aj'*getB(pdoti,ai_)*pdoti - 2*getB(pi,ai_)*pdoti*(getB(pj,aj_)*pdotj)' + f(2);
+                        - aj'*getB(pdoti,ai_)*pdoti - 2*getB(pi,ai_)*pdoti*(getB(pj,aj_)*pdotj)' - f(3);
                 end
                 if(flag == 12)
                     varargout{2} = -f(2);
                     varargout{3} = -ai'*getB(pdotj,aj_)*pdotj ...
-                        - aj'*getB(pdoti,ai_)*pdoti - 2*getB(pi,ai_)*pdoti*(getB(pj,aj_)*pdotj)' + f(2);
+                        - aj'*getB(pdoti,ai_)*pdoti - 2*getB(pi,ai_)*pdoti*(getB(pj,aj_)*pdotj)' - f(3);
                     varargout{4} = [-c' -c'*getB(pi,si_) c' c'*getB(pj,sj_)];
                 end
                 
@@ -78,24 +78,24 @@ classdef SimEngine3D
             elseif(strcmp(obj.joints(joint_id).type,'CD'))
                 varargout{1} = c'*(rj + Aj*sj_ - ri - Ai*si_) - f(1);
                 if(flag == 1)
-                    varargout{1} = -f(2);
+                    varargout{2} = -c'*(getB(pdotj,sj_)*pj - getB(pdoti,si_)*pi)-f(2);
                 end
                 if(flag == 2)
-                    varargout{2} = -f(2);
+                    varargout{2} = -c'*(getB(pdotj,sj_)*pj - getB(pdoti,si_)*pi)-f(2);
                     varargout{3} = c'*getB(pdoti,si_)*pdoti ...
-                        - c'*getB(pdoti,ai_)*pdoti - c'*getB(pdotj,sj_)*pdotj + f(2);
+                        - c'*getB(pdoti,ai_)*pdoti - c'*getB(pdotj,sj_)*pdotj - f(3);
                 end
                 
                 if(flag == 12)
-                    varargout{2} = -f(2);
+                    varargout{2} = -c'*(getB(pdotj,sj_)*pj - getB(pdoti,si_)*pi)-f(2);
                     varargout{3} = [];
                     varargout{4} = [0 aj'*getB(pi,ai_) 0 ai'*getB(pj,aj_)];
                 end
                 
                 if(flag == 22)
-                    varargout{2} = -f(2);
+                    varargout{2} = -c'*(getB(pdotj,sj_)*pj - getB(pdoti,si_)*pi)-f(2);
                     varargout{3} = c'*getB(pdoti,si_)*pdoti ...
-                        - c'*getB(pdoti,ai_)*pdoti - c'*getB(pdotj,sj_)*pdotj + f(2);
+                        - c'*getB(pdoti,ai_)*pdoti - c'*getB(pdotj,sj_)*pdotj - f(3);
                     varargout{4} = [0 aj'*getB(pi,ai_) 0 ai'*getB(pj,aj_)];
                     
                 end
