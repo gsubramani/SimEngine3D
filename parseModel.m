@@ -79,8 +79,8 @@ for i = 1:length(lines)
         attributes.parts(partIndex).r = [0 0 0]';
         attributes.parts(partIndex).ip = A2p(eul2A([0,0,0]'));
         attributes.parts(partIndex).p = A2p(eul2A([0,0,0]'));
-        attributes.parts(partIndex).pdot =[0 0 0 0];
-        attributes.parts(partIndex).pdotdot = [0 0 0 0];
+        attributes.parts(partIndex).pdot =[0 0 0 0]';
+        attributes.parts(partIndex).pdotdot = [0 0 0 0]';
         
         
         for anItem = 1:length(lineItem)
