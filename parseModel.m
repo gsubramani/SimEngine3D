@@ -77,6 +77,9 @@ for i = 1:length(lines)
         attributes.parts(partIndex).ireuler = [0,0,0]';
         attributes.parts(partIndex).iA = eul2A([0,0,0]');
         attributes.parts(partIndex).r = [0 0 0]';
+        attributes.parts(partIndex).rdot = [0 0 0]';
+        attributes.parts(partIndex).rdotdot = [0 0 0]';
+        
         attributes.parts(partIndex).ip = A2p(eul2A([0,0,0]'));
         attributes.parts(partIndex).p = A2p(eul2A([0,0,0]'));
         attributes.parts(partIndex).pdot =[0 0 0 0]';
@@ -120,7 +123,7 @@ for i = 1:length(lines)
         attributes.joints(jointIndex).i = NaN;
         attributes.joints(jointIndex).j = NaN;
         attributes.joints(jointIndex).f = 1;
-        attributes.joints(jointIndex).c = [0 0 0];
+        attributes.joints(jointIndex).c = [0 0 0]';
         
         for anItem = 1:length(lineItem)
             if(strcmp(lineItem(anItem),'I'))
@@ -143,20 +146,20 @@ for i = 1:length(lines)
                 attributes.joints(jointIndex).f ...
                     = str2func(char(lineItem(anItem + 1)));
             end
-            %if(strcmp(lineItem(anItem),'Q'))
-            %    attributes.joints(jointIndex).sj_ ...
-            %        = str2double(lineItem(anItem + 1:anItem + 3))';
-            %end
+            %             if(strcmp(lineItem(anItem),'DIJ'))
+            %                 attributes.joints(jointIndex).dij ...
+            %                     = str2double(lineItem(anItem + 1:anItem + 3))';
+            %             end
             
             %if(strcmp(lineItem(anItem),'P'))
             %    attributes.joints(jointIndex).si_ ...
             %        = str2double(lineItem(anItem + 1:anItem + 3))';
-            %end  
-                if(strcmp(lineItem(anItem),'C'))
-                    attributes.joints(jointIndex).c ...
-                        = str2double(lineItem(anItem + 1:anItem + 3))';
-                    
-                end
+            %end
+            if(strcmp(lineItem(anItem),'C'))
+                attributes.joints(jointIndex).c ...
+                    = str2double(lineItem(anItem + 1:anItem + 3))';
+                
             end
         end
     end
+end

@@ -30,10 +30,17 @@ classdef SimEngine3D
             markeri = obj.markers(ii);
             markerj = obj.markers(jj);
             
+            ind_i = markeri.part;
+            ind_j = markerj.part;
+            
             parti = obj.parts([obj.parts.id] == (markeri.part));
             partj = obj.parts([obj.parts.id] == (markerj.part));
             ri = parti.r;
             rj = partj.r;
+            
+            rdoti = parti.rdot;
+            rdotj = partj.rdot;
+            
             ai_ = markeri.r;
             aj_ = markerj.r;
             Ai = p2A(parti.p);
@@ -47,30 +54,40 @@ classdef SimEngine3D
             f = obj.joints(joint_id).f(obj.t);
             c = obj.joints(joint_id).c;
             si_ = ai_;
-            sj_ = si_;
+            sj_ = aj_;
+            dij = rj + Aj*sj_ - ri - Ai*si_;
+            adoti = getB(pi,ai_)*pdoti;
+            %adotj = getB(pj,aj_)*pdotj;
+            ddotij = rdotj - rdoti + getB(pj,sj_)*pj - + getB(pi,si_)*pi;
+            nb = length(obj.parts);
+            %partiald = zeros(1,length(obj.parts)*7);
             
             if(strcmp(obj.joints(joint_id).type,'DP1'))
                 varargout{1} = ai_'*Ai'*Aj*aj_ - f(1);
-                %val = vararagout{1};
                 if(flag == 1)
                     varargout{2} = -f(2);
                 end
                 if(flag == 2)
                     varargout{2} = -f(2);
                     varargout{3} = -ai'*getB(pdotj,aj_)*pdotj ...
-                        - aj'*getB(pdoti,ai_)*pdoti - 2*getB(pi,ai_)*pdoti*(getB(pj,aj_)*pdotj)' - f(3);
+                        - aj'*getB(pdoti,ai_)*pdoti - 2*getB(pi,ai_)*pdoti*(getB(pj,aj_)*pdotj)' + f(3);
                 end
-                if(flag == 12)
+                if(flag == 22)
                     varargout{2} = -f(2);
                     varargout{3} = -ai'*getB(pdotj,aj_)*pdotj ...
-                        - aj'*getB(pdoti,ai_)*pdoti - 2*getB(pi,ai_)*pdoti*(getB(pj,aj_)*pdotj)' - f(3);
-                    varargout{4} = [-c' -c'*getB(pi,si_) c' c'*getB(pj,sj_)];
+                        - aj'*getB(pdoti,ai_)*pdoti - 2*getB(pi,ai_)*pdoti*(getB(pj,aj_)*pdotj)' + f(3);
+                    varargout{4} = [zeros(1,3) aj'*getB(pi,ai_) ...
+                        zeros(1,3) ai'*getB(pj,aj_)];
+                    varargout{4} = matresize(varargout{4},ind_i,ind_j,nb);
+                    
                 end
                 
-                if(flag == 11)
+                if(flag == 12)
                     varargout{2} = -f(2);
                     varargout{3} = [];
-                    varargout{4} = [-c' -c'*getB(pi,si_) c' c'*getB(pj,sj_)];
+                    varargout{4} = [zeros(1,3) aj'*getB(pi,ai_) ...
+                        zeros(1,3) ai'*getB(pj,aj_)];
+                    varargout{4} = matresize(varargout{4},ind_i,ind_j,nb);
                 end
                 
                 
@@ -83,26 +100,94 @@ classdef SimEngine3D
                 if(flag == 2)
                     varargout{2} = -c'*(getB(pdotj,sj_)*pj - getB(pdoti,si_)*pi)-f(2);
                     varargout{3} = c'*getB(pdoti,si_)*pdoti ...
-                        - c'*getB(pdoti,ai_)*pdoti - c'*getB(pdotj,sj_)*pdotj - f(3);
+                        - c'*getB(pdoti,ai_)*pdoti - c'*getB(pdotj,sj_)*pdotj + f(3);
                 end
                 
                 if(flag == 12)
                     varargout{2} = -c'*(getB(pdotj,sj_)*pj - getB(pdoti,si_)*pi)-f(2);
                     varargout{3} = [];
-                    varargout{4} = [0 aj'*getB(pi,ai_) 0 ai'*getB(pj,aj_)];
+                    varargout{4} = [-c' -c'*getB(pi,si_) c' c'*getB(pj,sj_)];
+                    varargout{4} = matresize(varargout{4},ind_i,ind_j,nb);
                 end
                 
                 if(flag == 22)
                     varargout{2} = -c'*(getB(pdotj,sj_)*pj - getB(pdoti,si_)*pi)-f(2);
                     varargout{3} = c'*getB(pdoti,si_)*pdoti ...
-                        - c'*getB(pdoti,ai_)*pdoti - c'*getB(pdotj,sj_)*pdotj - f(3);
-                    varargout{4} = [0 aj'*getB(pi,ai_) 0 ai'*getB(pj,aj_)];
+                        - c'*getB(pdoti,ai_)*pdoti - c'*getB(pdotj,sj_)*pdotj + f(3);
+                    varargout{4} = [-c' -c'*getB(pi,si_) c' c'*getB(pj,sj_)];
+                    varargout{4} = matresize(varargout{4},ind_i,ind_j,nb);
                     
                 end
                 
                 
+                
+                
+            elseif(strcmp(obj.joints(joint_id).type,'DP2'))
+                varargout{1} = ai_'*Ai'*dij - f(1);
+                if(flag == 1)
+                    varargout{2} =  -f(2);
+                end
+                if(flag == 2)
+                    varargout{2} = -f(2);
+                    varargout{3} = -ai'*getB(pdotj,sj_)*pdotj ...
+                        + ai'*getB(pdoti,si_)*pdoti ...
+                        - dij'*getB(poti,ai_)*pdoti - 2*adoti'*ddotij +f(3);
+                end
+                
+                if(flag == 12)
+                    varargout{2} = -f(2);
+                    varargout{3} = [];
+                    varargout{4} = [-ai' dij'*getB(pi,ai_)-ai'*getB(pj,sj_) ...
+                        ai' ai'*B(pj,sj_)];
+                    varargout{4} = matresize(varargout{4},ind_i,ind_j,nb);
+                    
+                end
+                
+                if(flag == 22)
+                    varargout{2} = -f(2);
+                    varargout{3} = -ai'*getB(pdotj,sj_)*pdotj ...
+                        + ai'*getB(pdoti,si_)*pdoti ...
+                        - dij'*getB(pdoti,ai_)*pdoti - 2*adoti'*ddotij +f(3);
+                    varargout{4} = [-ai' dij'*getB(pi,ai_)-ai'*getB(pj,sj_) ...
+                        ai' ai'*getB(pj,sj_)];
+                    varargout{4} = matresize(varargout{4},ind_i,ind_j,nb);
+                    
+                end
+                
+            elseif(strcmp(obj.joints(joint_id).type,'D'))
+                varargout{1} = dij'*dij - f(1);
+                if(flag == 1)
+                    varargout{2} =  -f(2);
+                end
+                if(flag == 2)
+                    varargout{2} = -f(2);
+                    varargout{3} = -2*dij'*getB(pdotj,sj_)*pdotj ...
+                        + 2*dij'*getB(pdoti,si_)*pdoti - 2*ddotij'*ddotij + f(3);
+                end
+                
+                if(flag == 12)
+                    varargout{2} = -f(2);
+                    varargout{3} = [];
+                    varargout{4} = [-2*dij' 2*dij'*getB(pj,sj_) 2*dij' ...
+                        2*dij'*getB(pj,sj_)];
+                    varargout{4} = matresize(varargout{4},ind_i,ind_j,nb);
+                    
+                end
+                
+                if(flag == 22)
+                    varargout{2} = -f(2);
+                    varargout{3} = -2*dij'*getB(pdotj,sj_)*pdotj ...
+                        + 2*dij'*getB(pdoti,si_)*pdoti - 2*ddotij'*ddotij +f(3);
+                    varargout{4} = [-2*dij' 2*dij'*getB(pj,sj_) 2*dij' ...
+                        2*dij'*getB(pj,sj_)];
+                    varargout{4} = matresize(varargout{4},ind_i,ind_j,nb);
+                    
+                end
+                
+                
+                
+                
             end
-            
         end
     end
 end
