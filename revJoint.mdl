@@ -3,21 +3,21 @@ PART/1, GROUND
 MARKER/1, PART = 1
 ! For DP1 constraint: a and b
 MARKER/2, PART = 1, QP = 0, 1, 0
-MARKER/3, PART = 1, QP = 0, 0, 1
+MARKER/3, PART = 1, QP = 0, 0, -1
 PART/2, MASS = 2, CM = 5, 0, 0, IP = 0, 0, -1
-, REULER = 0, 0, 0
+, REULER = 1.57079632679, 1.57079632679, 0
 MARKER/4, PART = 2
 MARKER/5, PART = 2, QP = 0, 1, 0
 MARKER/6, PART = 2, QP = 0, -1, 0
 ! For DP1 constraint: c
-MARKER/7, PART = 2, QP = 1, 0, 0
+MARKER/7, PART = 2, QP = 0, 0, 1
 !-------------------------------- CONSTRAINTS ----------------------------------
-JOINT/1, CD, I = 1, J = 6, C = 1,0,0, F = @(x)[0 0 0]'
-JOINT/2, CD, I = 1, J = 6, C = 0,1,0, F = @(x)[0 0 0]'
-JOINT/3, CD, I = 1, J = 6, C = 0,0,1, F = @(x)[0 0 0]'
+JOINT/1, CD, I = 1, J = 5, C = 1,0,0, F = @(x)[0 0 0]'
+JOINT/2, CD, I = 1, J = 5, C = 0,1,0, F = @(x)[0 0 0]'
+JOINT/3, CD, I = 1, J = 5, C = 0,0,1, F = @(x)[0 0 0]'
 JOINT/4, DP1, I = 2, J = 7, F = @(x)[0 0 0]'
 JOINT/5, DP1, I = 3, J = 7, F = @(x)[0 0 0]'
-JOINT/6, DP1, I = 2, J = 5, F = @(t)[cos(t) 0 0]'
+JOINT/6, DP1, I = 3, J = 6, F = penGen
 !
 !------------------------- GRAVITATIONAL ACCELERATION --------------------------
 !

@@ -71,7 +71,8 @@ classdef SimEngine3D
                     
                 elseif(flag == 3)
                     out = -ai'*getB(pdotj,aj_)*pdotj ...
-                        - aj'*getB(pdoti,ai_)*pdoti - 2*getB(pi,ai_)*pdoti*(getB(pj,aj_)*pdotj)' + f(3);
+                        -aj'*getB(pdoti,ai_)*pdoti ...
+                        - 2*((getB(pi,ai_)*pdoti)'*(getB(pj,aj_)*pdotj)) - f(3);
                     
                     
                     
@@ -95,7 +96,7 @@ classdef SimEngine3D
                     
                 elseif(flag == 3)
                     out = c'*getB(pdoti,si_)*pdoti ...
-                        - c'*getB(pdoti,ai_)*pdoti - c'*getB(pdotj,sj_)*pdotj + f(3);
+                        - c'*getB(pdoti,ai_)*pdoti - c'*getB(pdotj,sj_)*pdotj - f(3);
                     
                     
                 elseif(flag == 4)
@@ -116,7 +117,7 @@ classdef SimEngine3D
                 elseif(flag == 3)
                     out = -ai'*getB(pdotj,sj_)*pdotj ...
                         + ai'*getB(pdoti,si_)*pdoti ...
-                        - dij'*getB(poti,ai_)*pdoti - 2*adoti'*ddotij +f(3);
+                        - dij'*getB(poti,ai_)*pdoti - 2*adoti'*ddotij - f(3);
                     
                     
                 elseif(flag == 4)
@@ -138,7 +139,7 @@ classdef SimEngine3D
                     
                 elseif(flag == 3)
                     out = -2*dij'*getB(pdotj,sj_)*pdotj ...
-                        + 2*dij'*getB(pdoti,si_)*pdoti - 2*ddotij'*ddotij + f(3);
+                        + 2*dij'*getB(pdoti,si_)*pdoti - 2*ddotij'*ddotij - f(3);
                     
                     
                 elseif(flag == 4)
@@ -182,18 +183,21 @@ classdef SimEngine3D
                 muF(length(obj.joints) + ii - 1) = 0;
             end
         end
-        function muF = computegammaF(obj,q,qdot)
+        function gammaF = computegammaF(obj,q,qdot)
             q = reshape(q,length(q),1);
+            qdot = reshape(qdot,length(qdot),1);
+            
             obj = obj.setq(q);
             obj = obj.setqdot(qdot);
-            muF = zeros(length(obj.joints) + length(obj.parts) - 1,1);
+            gammaF = zeros(length(obj.joints) + length(obj.parts) - 1,1);
             for ii = 1:length(obj.joints)
-                muF(ii) = constraint(obj,ii,3);
+                gammaF(ii) = constraint(obj,ii,3);
             end
             % adding the euler parameterization constraints
             % skipping first body since it is the ground body
             for ii = 2 : length(obj.parts)
-                muF(length(obj.joints) + ii - 1) = 0;
+                gammaF(length(obj.joints) + ii - 1) ...
+                    = -2*(obj.parts(ii).pdot'*obj.parts(ii).pdot);
             end
         end
         
@@ -212,7 +216,8 @@ classdef SimEngine3D
             % adding the euler parameterization constraints
             % skipping first body since it is the ground body
             for ii = 2 : length(obj.parts)
-                phiF(length(obj.joints) + ii - 1) = obj.parts(ii).p'*obj.parts(ii).p - 1;
+                phiF(length(obj.joints) + ii - 1) ...
+                    = obj.parts(ii).p'*obj.parts(ii).p - 1;
                 
             end
         end
@@ -240,14 +245,7 @@ classdef SimEngine3D
                     :(length(obj.parts) - 1)*3 + (ii - 1)*4);
             end
         end
-        function obj = setqt(obj,q,t)
-            obj.t = t;
-            for ii = 2:length(obj.parts)
-                obj.parts(ii).r = q((ii - 1)*3 - 2 : (ii - 1)*3)
-                obj.parts(ii).p = q((length(obj.parts) - 1)*3 + (ii - 1)*4 - 3 ...
-                    :(length(obj.parts) - 1)*3 + (ii - 1)*4);obj.parts(ii).p;
-            end
-        end
+
         
         function q = positionAnalysis(obj,initq,t)
             obj.t = t;
@@ -259,18 +257,14 @@ classdef SimEngine3D
         function qdot = velocityAnalysis(obj,q,t)
             obj.t = t;
             q = reshape(q,length(q),1);
-            obj.computephi_qF(q)
-            q
-            obj.computemuF(q)
             qdot = obj.computephi_qF(q)\obj.computemuF(q);
         end
-        function qdot = acclerationAnalysis(obj,q,t)
+        function [qdotdot, qdot] = acclerationAnalysis(obj,q,t)
             obj.t = t;
             q = reshape(q,length(q),1);
-            obj.computephi_qF(q)
-            q
-            obj.computegammaF(q)
-            qdot = obj.computephi_qF(q)\obj.computemuF(q);
+            phi_qF = obj.computephi_qF(q);
+            qdot = phi_qF\obj.computemuF(q);
+            qdotdot = phi_qF\obj.computegammaF(q,qdot);
         end
         
         

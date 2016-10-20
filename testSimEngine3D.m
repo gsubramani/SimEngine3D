@@ -8,13 +8,17 @@ delt = 0.1;
 samples = t/delt;
 outq = zeros(length(q),length(samples));
 outqdot = zeros(length(q),length(samples));
+outqdotdot = zeros(length(q),length(samples));
+
 parfor sample = 1:samples
     t = delt*(sample - 1);
     q = simobj.getq();
     q = simobj.positionAnalysis(q,t);
-    qdot = simobj.velocityAnalysis(q,t);
+    [qdotdot, qdot] = simobj.acclerationAnalysis(q,t);
     outq(:,sample) = q;
     outqdot(:,sample) = qdot;
+    outqdotdot(:,sample) = qdotdot;
+
 end
 %%
 ts = (0:samples-1)*delt;
@@ -26,5 +30,7 @@ plot(delt*(0:samples - 1),outqdot(1,:)')
 axis equal
 %phi_qF = simobj.computephi_qF()
 %%
-subplot(2,1,1);plot(ts,outq(3,:)')
-subplot(2,1,2);plot(ts,outqdot(3,:)')
+subplot(3,1,1);plot(ts,outq(3,:)')
+subplot(3,1,2);plot(ts,outqdot(3,:)')
+subplot(3,1,3);plot(ts,outqdotdot(3,:)')
+
