@@ -23,7 +23,7 @@ classdef SimEngine3D
         % flag = 11 : with phi_q
         % flag = 12 : with phi_q
         
-        function [varargout] = constraint(obj,joint_id,flag)
+        function out = constraint(obj,joint_id,flag)
             ii = obj.joints(joint_id).i;
             jj = obj.joints(joint_id).j;
             
@@ -58,136 +58,221 @@ classdef SimEngine3D
             dij = rj + Aj*sj_ - ri - Ai*si_;
             adoti = getB(pi,ai_)*pdoti;
             %adotj = getB(pj,aj_)*pdotj;
-            ddotij = rdotj - rdoti + getB(pj,sj_)*pj - + getB(pi,si_)*pi;
+            ddotij = rdotj - rdoti + getB(pj,sj_)*pj - getB(pi,si_)*pi;
             nb = length(obj.parts);
             %partiald = zeros(1,length(obj.parts)*7);
             
             if(strcmp(obj.joints(joint_id).type,'DP1'))
-                varargout{1} = ai_'*Ai'*Aj*aj_ - f(1);
                 if(flag == 1)
-                    varargout{2} = -f(2);
-                end
-                if(flag == 2)
-                    varargout{2} = -f(2);
-                    varargout{3} = -ai'*getB(pdotj,aj_)*pdotj ...
-                        - aj'*getB(pdoti,ai_)*pdoti - 2*getB(pi,ai_)*pdoti*(getB(pj,aj_)*pdotj)' + f(3);
-                end
-                if(flag == 22)
-                    varargout{2} = -f(2);
-                    varargout{3} = -ai'*getB(pdotj,aj_)*pdotj ...
-                        - aj'*getB(pdoti,ai_)*pdoti - 2*getB(pi,ai_)*pdoti*(getB(pj,aj_)*pdotj)' + f(3);
-                    varargout{4} = [zeros(1,3) aj'*getB(pi,ai_) ...
-                        zeros(1,3) ai'*getB(pj,aj_)];
-                    varargout{4} = matresize(varargout{4},ind_i,ind_j,nb);
+                    out = ai_'*Ai'*Aj*aj_ - f(1);
                     
-                end
-                
-                if(flag == 12)
-                    varargout{2} = -f(2);
-                    varargout{3} = [];
-                    varargout{4} = [zeros(1,3) aj'*getB(pi,ai_) ...
+                elseif(flag == 2)
+                    out = -f(2);
+                    
+                elseif(flag == 3)
+                    out = -ai'*getB(pdotj,aj_)*pdotj ...
+                        - aj'*getB(pdoti,ai_)*pdoti - 2*getB(pi,ai_)*pdoti*(getB(pj,aj_)*pdotj)' + f(3);
+                    
+                    
+                    
+                elseif(flag == 4)
+                    out = [zeros(1,3) aj'*getB(pi,ai_) ...
                         zeros(1,3) ai'*getB(pj,aj_)];
-                    varargout{4} = matresize(varargout{4},ind_i,ind_j,nb);
+                    out = matresize(out,ind_i,ind_j,nb);
+                else
+                    error('Invalid flag');
                 end
                 
                 
                 
             elseif(strcmp(obj.joints(joint_id).type,'CD'))
-                varargout{1} = c'*(rj + Aj*sj_ - ri - Ai*si_) - f(1);
-                if(flag == 1)
-                    varargout{2} = -c'*(getB(pdotj,sj_)*pj - getB(pdoti,si_)*pi)-f(2);
-                end
-                if(flag == 2)
-                    varargout{2} = -c'*(getB(pdotj,sj_)*pj - getB(pdoti,si_)*pi)-f(2);
-                    varargout{3} = c'*getB(pdoti,si_)*pdoti ...
-                        - c'*getB(pdoti,ai_)*pdoti - c'*getB(pdotj,sj_)*pdotj + f(3);
-                end
-                
-                if(flag == 12)
-                    varargout{2} = -c'*(getB(pdotj,sj_)*pj - getB(pdoti,si_)*pi)-f(2);
-                    varargout{3} = [];
-                    varargout{4} = [-c' -c'*getB(pi,si_) c' c'*getB(pj,sj_)];
-                    varargout{4} = matresize(varargout{4},ind_i,ind_j,nb);
-                end
-                
-                if(flag == 22)
-                    varargout{2} = -c'*(getB(pdotj,sj_)*pj - getB(pdoti,si_)*pi)-f(2);
-                    varargout{3} = c'*getB(pdoti,si_)*pdoti ...
-                        - c'*getB(pdoti,ai_)*pdoti - c'*getB(pdotj,sj_)*pdotj + f(3);
-                    varargout{4} = [-c' -c'*getB(pi,si_) c' c'*getB(pj,sj_)];
-                    varargout{4} = matresize(varargout{4},ind_i,ind_j,nb);
+                if (flag == 1)
+                    out = c'*(rj + Aj*sj_ - ri - Ai*si_) - f(1);
                     
+                elseif(flag == 2)
+                    %out = -c'*(getB(pdotj,sj_)*pj - getB(pdoti,si_)*pi)-f(2);
+                    out = -f(2);
+                    
+                elseif(flag == 3)
+                    out = c'*getB(pdoti,si_)*pdoti ...
+                        - c'*getB(pdoti,ai_)*pdoti - c'*getB(pdotj,sj_)*pdotj + f(3);
+                    
+                    
+                elseif(flag == 4)
+                    out = [-c' -c'*getB(pi,si_) c' c'*getB(pj,sj_)];
+                    out = matresize(out,ind_i,ind_j,nb);
+                    
+                else
+                    error('Invalid flag');
                 end
-                
-                
-                
                 
             elseif(strcmp(obj.joints(joint_id).type,'DP2'))
-                varargout{1} = ai_'*Ai'*dij - f(1);
                 if(flag == 1)
-                    varargout{2} =  -f(2);
-                end
-                if(flag == 2)
-                    varargout{2} = -f(2);
-                    varargout{3} = -ai'*getB(pdotj,sj_)*pdotj ...
+                    out = ai_'*Ai'*dij - f(1);
+                    
+                elseif(flag == 2)
+                    out =  -f(2);
+                    
+                elseif(flag == 3)
+                    out = -ai'*getB(pdotj,sj_)*pdotj ...
                         + ai'*getB(pdoti,si_)*pdoti ...
                         - dij'*getB(poti,ai_)*pdoti - 2*adoti'*ddotij +f(3);
-                end
-                
-                if(flag == 12)
-                    varargout{2} = -f(2);
-                    varargout{3} = [];
-                    varargout{4} = [-ai' dij'*getB(pi,ai_)-ai'*getB(pj,sj_) ...
-                        ai' ai'*B(pj,sj_)];
-                    varargout{4} = matresize(varargout{4},ind_i,ind_j,nb);
                     
-                end
-                
-                if(flag == 22)
-                    varargout{2} = -f(2);
-                    varargout{3} = -ai'*getB(pdotj,sj_)*pdotj ...
-                        + ai'*getB(pdoti,si_)*pdoti ...
-                        - dij'*getB(pdoti,ai_)*pdoti - 2*adoti'*ddotij +f(3);
-                    varargout{4} = [-ai' dij'*getB(pi,ai_)-ai'*getB(pj,sj_) ...
+                    
+                elseif(flag == 4)
+                    out = [-ai' dij'*getB(pi,ai_)-ai'*getB(pj,sj_) ...
                         ai' ai'*getB(pj,sj_)];
-                    varargout{4} = matresize(varargout{4},ind_i,ind_j,nb);
+                    out = matresize(out,ind_i,ind_j,nb);
                     
+                else
+                    error('Invalid flag');
                 end
+                
                 
             elseif(strcmp(obj.joints(joint_id).type,'D'))
-                varargout{1} = dij'*dij - f(1);
                 if(flag == 1)
-                    varargout{2} =  -f(2);
-                end
-                if(flag == 2)
-                    varargout{2} = -f(2);
-                    varargout{3} = -2*dij'*getB(pdotj,sj_)*pdotj ...
+                    out = dij'*dij - f(1);
+                    
+                elseif(flag == 2)
+                    out =  -f(2);
+                    
+                elseif(flag == 3)
+                    out = -2*dij'*getB(pdotj,sj_)*pdotj ...
                         + 2*dij'*getB(pdoti,si_)*pdoti - 2*ddotij'*ddotij + f(3);
-                end
-                
-                if(flag == 12)
-                    varargout{2} = -f(2);
-                    varargout{3} = [];
-                    varargout{4} = [-2*dij' 2*dij'*getB(pj,sj_) 2*dij' ...
+                    
+                    
+                elseif(flag == 4)
+                    out = [-2*dij' 2*dij'*getB(pj,sj_) 2*dij' ...
                         2*dij'*getB(pj,sj_)];
-                    varargout{4} = matresize(varargout{4},ind_i,ind_j,nb);
+                    out = matresize(out,ind_i,ind_j,nb);
+                else
+                    error('Invalid flag');
                     
                 end
-                
-                if(flag == 22)
-                    varargout{2} = -f(2);
-                    varargout{3} = -2*dij'*getB(pdotj,sj_)*pdotj ...
-                        + 2*dij'*getB(pdoti,si_)*pdoti - 2*ddotij'*ddotij +f(3);
-                    varargout{4} = [-2*dij' 2*dij'*getB(pj,sj_) 2*dij' ...
-                        2*dij'*getB(pj,sj_)];
-                    varargout{4} = matresize(varargout{4},ind_i,ind_j,nb);
-                    
-                end
-                
-                
-                
+            else
+                error('Constraint not found')
+            end
+        end
+        function phi_q = computephi_qF(obj,q)
+            q = reshape(q,length(q),1);
+            obj = obj.setq(q);
+            phi_q = zeros(length(obj.joints) ...
+                + length(obj.parts) - 1,7*(length(obj.parts) - 1));
+            for ii = 1:length(obj.joints)
+                phi_q(ii,:) = constraint(obj,ii,4);
+            end
+            % adding the euler parameterization constraints
+            % skipping first body since it is the ground body
+            nb = length(obj.parts);
+            for ii = 2 : length(obj.parts)
+                indexing = (nb-1)*3 + (ii - 1)*4 - 3 : (nb-1)*3 + (ii - 1)*4;
+                phi_q(length(obj.joints) + ii - 1,indexing) = q(4:end);
+            end
+        end
+        function muF = computemuF(obj,q)
+            q = reshape(q,length(q),1);
+            obj = obj.setq(q);
+            muF = zeros(length(obj.joints) + length(obj.parts) - 1,1);
+            for ii = 1:length(obj.joints)
+                muF(ii) = constraint(obj,ii,2);
+            end
+            % adding the euler parameterization constraints
+            % skipping first body since it is the ground body
+            for ii = 2 : length(obj.parts)
+                muF(length(obj.joints) + ii - 1) = 0;
+            end
+        end
+        function muF = computegammaF(obj,q,qdot)
+            q = reshape(q,length(q),1);
+            obj = obj.setq(q);
+            obj = obj.setqdot(qdot);
+            muF = zeros(length(obj.joints) + length(obj.parts) - 1,1);
+            for ii = 1:length(obj.joints)
+                muF(ii) = constraint(obj,ii,3);
+            end
+            % adding the euler parameterization constraints
+            % skipping first body since it is the ground body
+            for ii = 2 : length(obj.parts)
+                muF(length(obj.joints) + ii - 1) = 0;
+            end
+        end
+        
+        function phiF = computephiF(obj,q)
+            % This function computes all the kinematics constraints
+            % input - a vector of [q t]
+            % we need to remove the ground bodies euler parameterization
+            % constraint therefore : -1
+            q = reshape(q,length(q),1);
+            obj = obj.setq(q);
+            
+            phiF = zeros(length(obj.joints) + length(obj.parts) - 1,1);
+            for ii = 1:length(obj.joints)
+                phiF(ii) = constraint(obj,ii,1);
+            end
+            % adding the euler parameterization constraints
+            % skipping first body since it is the ground body
+            for ii = 2 : length(obj.parts)
+                phiF(length(obj.joints) + ii - 1) = obj.parts(ii).p'*obj.parts(ii).p - 1;
                 
             end
         end
+
+        function q = getq(obj)
+            for ii = 2:length(obj.parts)
+                q((ii - 1)*3 - 2 : (ii - 1)*3) = obj.parts(ii).r;
+                q((length(obj.parts) - 1)*3 + (ii - 1)*4 - 3 ...
+                    :(length(obj.parts) - 1)*3 + (ii - 1)*4) = obj.parts(ii).p;
+            end
+            % force to column vector
+            q = reshape(q,length(q),1);
+        end
+        function obj = setq(obj,q)
+            for ii = 2:length(obj.parts)
+                obj.parts(ii).r = q((ii - 1)*3 - 2 : (ii - 1)*3);
+                obj.parts(ii).p = q((length(obj.parts) - 1)*3 + (ii - 1)*4 - 3 ...
+                    :(length(obj.parts) - 1)*3 + (ii - 1)*4);
+            end
+        end
+        function obj = setqdot(obj,qdot)
+            for ii = 2:length(obj.parts)
+                obj.parts(ii).rdot = qdot((ii - 1)*3 - 2 : (ii - 1)*3);
+                obj.parts(ii).pdot = qdot((length(obj.parts) - 1)*3 + (ii - 1)*4 - 3 ...
+                    :(length(obj.parts) - 1)*3 + (ii - 1)*4);
+            end
+        end
+        function obj = setqt(obj,q,t)
+            obj.t = t;
+            for ii = 2:length(obj.parts)
+                obj.parts(ii).r = q((ii - 1)*3 - 2 : (ii - 1)*3)
+                obj.parts(ii).p = q((length(obj.parts) - 1)*3 + (ii - 1)*4 - 3 ...
+                    :(length(obj.parts) - 1)*3 + (ii - 1)*4);obj.parts(ii).p;
+            end
+        end
+        
+        function q = positionAnalysis(obj,initq,t)
+            obj.t = t;
+            initq = reshape(initq,length(initq),1);
+            q = fsolve(@(q)obj.computephiF(q),initq);
+            
+        end
+        
+        function qdot = velocityAnalysis(obj,q,t)
+            obj.t = t;
+            q = reshape(q,length(q),1);
+            obj.computephi_qF(q)
+            q
+            obj.computemuF(q)
+            qdot = obj.computephi_qF(q)\obj.computemuF(q);
+        end
+        function qdot = acclerationAnalysis(obj,q,t)
+            obj.t = t;
+            q = reshape(q,length(q),1);
+            obj.computephi_qF(q)
+            q
+            obj.computegammaF(q)
+            qdot = obj.computephi_qF(q)\obj.computemuF(q);
+        end
+        
+        
     end
 end

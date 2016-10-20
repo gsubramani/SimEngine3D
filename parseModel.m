@@ -1,5 +1,6 @@
 % Parse adams file
 function attributes = parseModel(file_name)
+% body 1 is always ground
 fid = fopen(file_name);
 index = 1;
 tline = fgets(fid);
@@ -144,7 +145,8 @@ for i = 1:length(lines)
             end
             if(strcmp(lineItem(anItem),'F'))
                 attributes.joints(jointIndex).f ...
-                    = str2func(char(lineItem(anItem + 1)));
+                    = str2func(char(lineItem(anItem + 1:end)...
+                    ));
             end
             %             if(strcmp(lineItem(anItem),'DIJ'))
             %                 attributes.joints(jointIndex).dij ...
