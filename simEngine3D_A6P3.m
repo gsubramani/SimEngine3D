@@ -56,12 +56,12 @@ end
 
 
 subplot(6,1,4);plot(ts,qQ(1:3,:)')
-title(['Position - O' char(39)])
+title(['Position - Q' char(39)])
 legend('x','y','z');
 subplot(6,1,5);plot(ts,qQdot(1:3,:)')
-title(['Velocity - O' char(39)])
+title(['Velocity - Q' char(39)])
 subplot(6,1,6);plot(ts,qQdotdot(1:3,:)')
-title(['Acceleration - O' char(39)])
+title(['Acceleration - Q' char(39)])
 
 
 
