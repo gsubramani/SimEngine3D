@@ -266,7 +266,43 @@ classdef SimEngine3D
             qdot = phi_qF\obj.computemuF(q);
             qdotdot = phi_qF\obj.computegammaF(q,qdot);
         end
-        
+        function M = getM(obj)
+            M_diag = zeros(1,(length(obj.parts) - 1)*3);
+            for ii = 1:length(obj.parts)-1
+                M_diag(3*ii - 2:3*ii) = obj.parts(ii+1).m*ones(1,3);
+            end
+            M = diag(M_diag);
+        end
+        function Jp = getJ(obj,q)
+            p = q(3*(length(obj.parts) - 1)+ 1 : end);
+            Jp = zeros((length(obj.parts) - 1)*4);
+            for ii = 1:length(obj.parts)-1
+                Gp = getG(p(ii*4 - 3:ii*4));
+                Jp(4*ii - 3:4*ii,4*ii - 3:4*ii) = 4*Gp'*obj.parts(ii+1).j*Gp;
+            end
+        end
+        function tau = gettau(obj,q,qdot)
+        tau = zeros((length(obj.parts) - 1)*4,1);
+        p = q(3*(length(obj.parts) - 1)+ 1 : end);
+        pdot = qdot(3*(length(obj.parts) - 1)+ 1 : end);
+            for ii = 1:length(obj.parts)-1
+                Gpdot = getG(pdot(ii*4 - 3:ii*4));
+                tau(4*ii - 3:4*ii) ...
+                     = 8*Gpdot'*obj.parts(ii+1).j*Gpdot*pdot(ii*4 - 3:ii*4);
+            end
+        end
+        function [reactionForces] = inverseDynamicsAnalysis(obj,q,t)
+            q = reshape(q,length(q),1);
+            [qdotdot,qdot] = obj.acclerationAnalysis(q,t);
+            rdotdot = qdotdot(1:(length(obj.parts)-1)*3);
+            pdotdot = qdotdot((length(obj.parts)-1)*3 + 1:end);
+            phi_qF = obj.computephi_qF(q);
+            M = obj.getM();
+            Jp = obj.getJ(q);
+            tau = obj.gettau(q,qdot);
+            lambdas = -phi_qF'\([M*rdotdot;Jp*pdotdot - tau]);
+            reactionForces = (-phi_qF'*diag(lambdas))';
+        end
         
     end
 end

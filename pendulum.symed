@@ -4,8 +4,8 @@ MARKER/1, PART = 1
 ! For DP1 constraint: a and b
 MARKER/2, PART = 1, QP = 0, 1, 0
 MARKER/3, PART = 1, QP = 0, 0, -1
-PART/2, MASS = 2, CM = 5, 0, 0, IP = 0, 0, -1
-, REULER = 0, 0, 0
+PART/2, MASS = 39, IP = 0, 0, -1
+, J = 13.0081, 0, 0, 0, 13.0081, 0, 0, 0, 0.0163
 MARKER/4, PART = 2
 MARKER/5, PART = 2, QP = 0, 0, 1
 MARKER/6, PART = 2, QP = 0, 0, -1

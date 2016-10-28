@@ -1,14 +1,22 @@
-%%simEngine3D_A6P3.m
+%%simEngine3D_A7P1.m
+% calculating moment of inertias:
+M = 0.05^2*4*7800;
+
+Ix = 1/12*M*(4^2 + 0.05^2);
+Iy = 1/12*M*(4^2 + 0.05^2);
+Iz = 1/12*M*(2*0.05^2);
+%%
 simobj = SimEngine3D('pendulum.symed');
 q = rand(1,7);
 outq = [];
 t = 10;
-delt = 0.1;
+delt = 0.01;
 samples = t/delt;
 outq = zeros(length(q),length(samples));
 outqdot = zeros(length(q),length(samples));
 outqdotdot = zeros(length(q),length(samples));
-
+Tre = zeros(samples,4);
+torqpend = zeros(samples,1);
 for sample = 1:samples
     t = delt*(sample - 1);
     q = simobj.getq();
@@ -17,17 +25,19 @@ for sample = 1:samples
     outq(:,sample) = q;
     outqdot(:,sample) = qdot;
     outqdotdot(:,sample) = qdotdot;
-    %simobj.inverseDynamicsAnalysis(q,t)
+    Fr = simobj.inverseDynamicsAnalysis(q,t);
+    Tre(sample,:) = Fr(6,4:end);
+    magnitude = sqrt(Fr(6,4:end)*Fr(6,4:end)');
+    p = Fr(6,4:end)*1/sqrt(Fr(6,4:end)*Fr(6,4:end)');
+    torqpend(sample) = (p(2)/sqrt(1 - p(1)^2))*magnitude;
 end
 %%
 ts = (0:samples-1)*delt;
 close all;
 figure(1)
 plot(outq(2,:),outq(3,:))
-figure(2)
-plot(delt*(0:samples - 1),outqdot(1,:)')
-axis equal
 %%
+figure(2)
 subplot(6,1,1);plot(ts,outq(1:3,:)')
 title(['Position - O' char(39)])
 legend('x','y','z');
@@ -60,6 +70,10 @@ subplot(6,1,5);plot(ts,qQdot(1:3,:)')
 title(['Velocity - Q' char(39)])
 subplot(6,1,6);plot(ts,qQdotdot(1:3,:)')
 title(['Acceleration - Q' char(39)])
+
+figure(3)
+plot(ts,torqpend)
+
 
 
 
