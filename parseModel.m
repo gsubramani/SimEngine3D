@@ -85,7 +85,7 @@ for i = 1:length(lines)
         attributes.parts(partIndex).p = A2p(eul2A([0,0,0]'));
         attributes.parts(partIndex).pdot =[0 0 0 0]';
         attributes.parts(partIndex).pdotdot = [0 0 0 0]';
-        
+        attributes.g = -9.8;
         
         for anItem = 1:length(lineItem)
             if(strcmp(lineItem(anItem),'MASS'))
@@ -119,6 +119,9 @@ for i = 1:length(lines)
             end
         end
     end
+    if(strcmp(lineItem(1),'ACCGRAV'))
+        attributes.g = str2double(lineItem(3));
+    end
     if(strcmp(lineItem(1),'JOINT'))
         jointIndex = jointIndex + 1;
         attributes.joints(jointIndex).id = str2double(lineItem(2));
@@ -150,15 +153,7 @@ for i = 1:length(lines)
                     = str2func(char(lineItem(anItem + 1:end)...
                     ));
             end
-            %             if(strcmp(lineItem(anItem),'DIJ'))
-            %                 attributes.joints(jointIndex).dij ...
-            %                     = str2double(lineItem(anItem + 1:anItem + 3))';
-            %             end
-            
-            %if(strcmp(lineItem(anItem),'P'))
-            %    attributes.joints(jointIndex).si_ ...
-            %        = str2double(lineItem(anItem + 1:anItem + 3))';
-            %end
+
             if(strcmp(lineItem(anItem),'C'))
                 attributes.joints(jointIndex).c ...
                     = str2double(lineItem(anItem + 1:anItem + 3))';

@@ -5,6 +5,9 @@ classdef SimEngine3D
         markers
         joints
         t
+        g
+        nb
+        nc
     end
     methods
         function obj = SimEngine3D(file_name)
@@ -13,7 +16,9 @@ classdef SimEngine3D
             obj.markers = attributes.markers';
             obj.joints = attributes.joints';
             obj.t = 0;
-            
+            obj.g = attributes.g;
+            obj.nb = length(obj.parts) - 1;
+            obj.nc = length(obj.joints);
         end
         %% Returns the value of the specified constraint
         % flag returns which values are required:
@@ -290,6 +295,31 @@ classdef SimEngine3D
                 tau(4*ii - 3:4*ii) ...
                      = 8*Gpdot'*obj.parts(ii+1).j*Gpdot*pdot(ii*4 - 3:ii*4);
             end
+        end
+        function F = getF(obj) 
+            F = zeros(obj.nb*3,1);
+            for ii = 1:obj.nb
+                F(3*ii - 2) = obj.parts(ii + 1).m*obj.g;
+            end
+        end
+        function [A, B]  = getEOM(obj,q,qdot)
+            M = obj.getM();
+            Jp = obj.getJ(q);
+            phi_qF = obj.computephi_qF(q);
+            phi_rF = phi_qF(1:obj.nc,1:3*obj.nb);
+            phi_pF = phi_qF(1:obj.nc,3*obj.nb + 1:end);
+            p_pF = phi_qF(length(obj.joints) + 1:end,3*obj.nb + 1:end);
+            A = [M               ,zeros(3*obj.nb,4*obj.nb),zeros(3*obj.nb,obj.nb),phi_rF';
+                 zeros(4*obj.nb,3*obj.nb),Jp              ,p_pF'                 ,phi_pF';
+                 zeros(obj.nb,3*obj.nb)  ,p_pF            ,zeros(obj.nb,obj.nb)  ,zeros(obj.nb,obj.nc);
+                 phi_rF                  ,phi_pF          ,zeros(obj.nc,obj.nb)  ,zeros(obj.nc,obj.nc)];
+            F = obj.getF();
+            tau = obj.gettau(q,qdot);
+            gammaF = obj.computegammaF(q,qdot)
+            gamma = gammaF(1:obj.nc,1);
+            gamma_p = gammaF(obj.nc + 1:end,1);
+            
+            B = [F;tau;gamma_p;gamma];
         end
         function [reactionForces] = inverseDynamicsAnalysis(obj,q,t)
             q = reshape(q,length(q),1);
