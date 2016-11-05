@@ -17,11 +17,11 @@ JOINT/2, CD, I = 1, J = 5, C = 0,1,0, F = @(x)[0 0 0]'
 JOINT/3, CD, I = 1, J = 5, C = 0,0,1, F = @(x)[0 0 0]'
 JOINT/4, DP1, I = 2, J = 7, F = @(x)[0 0 0]'
 JOINT/5, DP1, I = 3, J = 7, F = @(x)[0 0 0]'
-JOINT/6, DP1, I = 2, J = 6, F = penGen
+!JOINT/6, DP1, I = 2, J = 6, F = penGen
 !
 !------------------------- GRAVITATIONAL ACCELERATION --------------------------
 !
-ACCGRAV/JGRAV = -9.6500000000
+ACCGRAV/JGRAV = 0, 0, -9.6500000000
 !
 !----------------------------- ANALYSIS SETTINGS -------------------------------
 !

@@ -315,7 +315,7 @@ classdef SimEngine3D
         function F = getF(obj,q,qdot)
             F = zeros(obj.nb*3,1);
             for ii = 1:obj.nb
-                F(3*ii - 2) = obj.parts(ii + 1).m*obj.g;
+                F(3*ii - 2:3*ii) = obj.parts(ii + 1).m*obj.g;
             end
         end
         function [A, B]  = getEOM(obj,q,qdot)

@@ -85,7 +85,7 @@ for i = 1:length(lines)
         attributes.parts(partIndex).p = A2p(eul2A([0,0,0]'));
         attributes.parts(partIndex).pdot =[0 0 0 0]';
         attributes.parts(partIndex).pdotdot = [0 0 0 0]';
-        attributes.g = -9.8;
+        attributes.g = [0 0 -9.8];;
         
         for anItem = 1:length(lineItem)
             if(strcmp(lineItem(anItem),'MASS'))
@@ -120,7 +120,7 @@ for i = 1:length(lines)
         end
     end
     if(strcmp(lineItem(1),'ACCGRAV'))
-        attributes.g = str2double(lineItem(3));
+        attributes.g = str2double(lineItem(3:5))';
     end
     if(strcmp(lineItem(1),'JOINT'))
         jointIndex = jointIndex + 1;
