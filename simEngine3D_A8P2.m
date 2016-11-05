@@ -1,9 +1,40 @@
 %%simEngine3D_A8P1.m
 simobj = SimEngine3D('pendulum.symed');
-q  = [1:simobj.nb*7]';
-[A,B] = simobj.getEOM(q,q)
-A\B
+initq  = [0 0 0 0.25 0.25 0 0];
+t = 0
+q = simobj.positionAnalysis(initq,t);
+deltaa = 0.01;
+tempJacobi = zeros(7,7);
+%q  = [0 0 0 1 0 0 0];
+% for ii = 1:7
+%     qdel = q;
+%     qdel(ii) = qdel(ii) + deltaa; 
+%     tempJacobi(:,ii) = -(simobj.computephiF(q) - simobj.computephiF(qdel))/deltaa;
+% end
+% tempJacobi - simobj.computephi_qF(q)
 
+%%
+initq  = [1:simobj.nb*7]';
+qvec = [];
+%q = simobj.positionAnalysis(initq,0);
+q = [0   -0.6190   -0.7854         0         0    0.3276    0.9448]';
+qdot0 = zeros(simobj.nb*7,1);
+h = 0.001;
+n = 100;
+% for t = 0:0.1:10
+%     q = simobj.positionAnalysis(initq,t);
+%     qvec = [qvec q];
+% end
+
+[x v z] = simobj.solveSystemDynamics1(h,n,q,qdot0);
+
+% lambdas = zeros(simobj.nc,1);
+% z0 = zeros(simobj.nb*8 + simobj.nc,1);
+% h = 0.00001;
+% z = simobj.solveNewton1(q,q,z0,h)
+
+%g = simobj.getG(q,q,q,lambdas,lambdasp,beta,h)
+%size(g)
 
 
 

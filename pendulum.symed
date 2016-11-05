@@ -4,10 +4,10 @@ MARKER/1, PART = 1
 ! For DP1 constraint: a and b
 MARKER/2, PART = 1, QP = 0, 1, 0
 MARKER/3, PART = 1, QP = 0, 0, -1
-PART/2, MASS = 39, IP = 0, 0, -1
+PART/2, MASS = 39, IP = 0, 0, -2
 , J = 13.0081, 0, 0, 0, 13.0081, 0, 0, 0, 0.0163
 MARKER/4, PART = 2
-MARKER/5, PART = 2, QP = 0, 0, 1
+MARKER/5, PART = 2, QP = 0, 0, 2
 MARKER/6, PART = 2, QP = 0, 0, -1
 ! For DP1 constraint: c
 MARKER/7, PART = 2, QP = 1, 0, 0
@@ -17,11 +17,11 @@ JOINT/2, CD, I = 1, J = 5, C = 0,1,0, F = @(x)[0 0 0]'
 JOINT/3, CD, I = 1, J = 5, C = 0,0,1, F = @(x)[0 0 0]'
 JOINT/4, DP1, I = 2, J = 7, F = @(x)[0 0 0]'
 JOINT/5, DP1, I = 3, J = 7, F = @(x)[0 0 0]'
-JOINT/6, DP1, I = 3, J = 6, F = penGen
+JOINT/6, DP1, I = 2, J = 6, F = penGen
 !
 !------------------------- GRAVITATIONAL ACCELERATION --------------------------
 !
-ACCGRAV/JGRAV = -9806.6500000000
+ACCGRAV/JGRAV = -9.6500000000
 !
 !----------------------------- ANALYSIS SETTINGS -------------------------------
 !

@@ -1,5 +1,6 @@
 %%simEngine3D_A7P1.m
 % calculating moment of inertias:
+clear;
 M = 0.05^2*4*7800;
 
 Ix = 1/12*M*(4^2 + 0.05^2);
@@ -10,16 +11,18 @@ simobj = SimEngine3D('pendulum.symed');
 q = rand(1,7);
 outq = [];
 t = 10;
-delt = 0.01;
+delt = 0.1;
 samples = t/delt;
 outq = zeros(length(q),length(samples));
 outqdot = zeros(length(q),length(samples));
 outqdotdot = zeros(length(q),length(samples));
 Tre = zeros(samples,4);
 torqpend = zeros(samples,1);
+simobj = simobj.setq(q);
+
 for sample = 1:samples
-    t = delt*(sample - 1);
-    q = simobj.getq();
+    t = delt*(sample);
+    %q = simobj.getq();
     q = simobj.positionAnalysis(q,t);
     [qdotdot, qdot] = simobj.acclerationAnalysis(q,t);
     outq(:,sample) = q;
@@ -30,12 +33,13 @@ for sample = 1:samples
     magnitude = sqrt(Fr(6,4:end)*Fr(6,4:end)');
     p = Fr(6,4:end)*1/sqrt(Fr(6,4:end)*Fr(6,4:end)');
     torqpend(sample) = (p(2)/sqrt(1 - p(1)^2))*magnitude;
+    t
 end
 %%
 ts = (0:samples-1)*delt;
 close all;
-figure(1)
-plot(outq(2,:),outq(3,:))
+%figure(1)
+%plot(outq(2,:),outq(3,:))
 %%
 figure(2)
 subplot(6,1,1);plot(ts,outq(1:3,:)')
@@ -52,7 +56,7 @@ outqQ = ones(3,length(samples));
 outqQdot = ones(3,length(samples));
 outqQdotdot = ones(3,length(samples));
 
-parfor ii = length(outq)
+for ii = length(outq)
     q = outq(:,ii)';
     qdot = outqdot(:,ii)';
     qdotdot = outqdotdot(:,ii)';

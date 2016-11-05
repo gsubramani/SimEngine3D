@@ -102,7 +102,7 @@ for i = 1:length(lines)
                     = reshape(attributes.parts(partIndex).j,3,3);
             end
             if(strcmp(lineItem(anItem),'IP'))
-                attributes.parts(partIndex).ip = ...
+                attributes.parts(partIndex).ir = ...
                     (str2double(strrep(lineItem(anItem + 1 : anItem + 3),'D','')))';
                 attributes.parts(partIndex).r = attributes.parts(partIndex).ir;
             end
