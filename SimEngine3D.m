@@ -20,7 +20,7 @@ classdef SimEngine3D
             obj.g = attributes.g;
             obj.nb = length(obj.parts) - 1;
             obj.nc = length(obj.joints);
-            obj.TOL = 0.01;
+            obj.TOL = 0.1;
         end
         %% Returns the value of the specified constraint
         % flag returns which values are required:
@@ -271,7 +271,7 @@ classdef SimEngine3D
             valnorm = 10;
             while(valnorm>TOL2 && i<100)
                 q = q - obj.computephi_qF(q)\obj.computephiF(q);
-            valnorm = norm(obj.computephiF(q));
+                valnorm = norm(obj.computephiF(q));
             end
         end
         
@@ -359,9 +359,12 @@ classdef SimEngine3D
             normG = norm(discG);
         end
         
-        function discG = computeQuasiNewtonG2(obj,qdotdot,lambdas,lambdasp,q_1,q_2,qdot_1,q_2dot,h)
-            [q,qdot] = xvnBDF2(qdotdot,q_1,q_2,qdot_1,qdot_2,h);
+        function [delZ,normG,q,qdot] = computeQuasiNewtonG2(obj,qdotdot,lambdas,lambdasp,q_1,q_2,qdot_1,qdot_2,h)
+            [q,qdot,beta] = xvnBDF2(qdotdot,q_1,q_2,qdot_1,qdot_2,h);
             discG = obj.getG(q,qdot,qdotdot,lambdas,lambdasp,beta,h);
+            jacobianG = obj.getPSYg(q);
+            delZ = -jacobianG\discG;
+            normG = norm(discG);
         end
         
         
@@ -416,7 +419,7 @@ classdef SimEngine3D
             end
         end
         
-        function [qvec,qdotvec,zvec] = solveSystemDynamics1(obj,h,n,q0,qdot0)
+        function [qvec,qdotvec,zvec] = solveSystemDynamics1(obj,h,n,q0,qdot0,t0)
             
             z = zeros(obj.nb*8 + obj.nc,1);
             qvec = zeros(obj.nb*7,n);
@@ -425,12 +428,56 @@ classdef SimEngine3D
             
             qvec(:,1) = q0;
             qdotvec(:,1) = qdot0;
-            
+            obj.t = t0;
             for ii = 2:n
                 q_1 = qvec(:,ii-1);
                 qdot_1 = qdotvec(:,ii-1);
                 obj.t = h + obj.t;
                 [z,q,qdot] = obj.solveNewton1(q_1,qdot_1,z,h);
+                qvec(:,ii) = q;
+                qdotvec(:,ii) = qdot;
+                zvec(:,ii) = z;
+            end
+        end
+        
+        function [z,q,qdot] = solveNewton2(obj,q_1,q_2,qdot_1,qdot_2,z0,h)
+            i = 0;
+            normG = 100;
+            z = z0;
+            
+            while(obj.TOL<normG&&i<10)
+                qdotdot = z(1:obj.nb*7,1);
+                lambdasp = z(obj.nb*7 + 1 : 1:obj.nb*7 + obj.nb,1);
+                lambdas = z(obj.nb*7 + obj.nb+1:end,1);
+                [delZ,normG,q,qdot] = obj.computeQuasiNewtonG2(qdotdot,lambdas,lambdasp,q_1,q_2,qdot_1,qdot_2,h);
+                z = z + delZ;
+                i = i+1;
+            end
+        end
+        
+        function [qvec,qdotvec,zvec,tvec] = solveSystemDynamics2(obj,h1,h2,n1,n2,q0,qdot0,t0);
+            
+            [qvec,qdotvec,zvec] = solveSystemDynamics1(obj,h1,n1,q0,qdot0,t0);
+            tvec = [(1:n1)*h1  n1*h1 + (1:n2)*h2];
+            qvec = [qvec zeros(obj.nb*7,n2)];
+            qdotvec = [qdotvec zeros(obj.nb*7,n2)];
+            zvec = [zvec zeros(obj.nb*8 + obj.nc,n2)];
+            %qvec(:,1) = q0;
+            %qdotvec(:,1) = qdot0;
+            
+            obj.t = t0 + (n1+1)*h1;
+            
+            for ii = n1 + 1:n1 + n2
+                q_1 = qvec(:,ii-1);
+                qdot_1 = qdotvec(:,ii-1);
+                
+                q_2 = qvec(:,ii-2);
+                qdot_2 = qdotvec(:,ii-2);
+            
+                z = zvec(:,ii-2);
+            
+                obj.t = h2 + obj.t;
+                [z,q,qdot] = obj.solveNewton2(q_1,q_2,qdot_1,qdot_2,z,h2);
                 qvec(:,ii) = q;
                 qdotvec(:,ii) = qdot;
                 zvec(:,ii) = z;
@@ -455,8 +502,8 @@ function [x, v, beta] = xvnBDF2(a,x_1,x_2,v_1,v_2,h)
 %Cnx2 = 4/3*x_1 - 1/3*x_2 + 8/9*h*v_1 - 2/9*v_2;
 %Cnv2 = 4/3*v_1 - 1/3*v_2;
 %beta_h = 2/3*h;
-x = 4/3*x_1 - 1/3*x_2 + 8/9*h*v_1 - 2/9*v_2 + (2/3*h)^2*a;
+x = 4/3*x_1 - 1/3*x_2 + 8/9*h*v_1 - 2/9*h*v_2 + (2/3*h)^2*a;
 v = 4/3*v_1 - 1/3*v_2 + (2/3*h)*a;
-beta = 4/3;
+beta = 2/3;
 
 end

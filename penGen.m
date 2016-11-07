@@ -1,6 +1,5 @@
 function result = penGen(t)
-%result = [pi/4*cos(2*t) -pi/2*sin(2*t) -pi*cos(2*t)]';
 result = [cos(pi/2 + (pi*cos(2*t))/4) ...
           (pi*sin(2*t)*sin(pi/2 + (pi*cos(2*t))/4))/2 ...
            pi*cos(2*t)*sin(pi/2 + (pi*cos(2*t))/4) - (pi^2*sin(2*t)^2*cos(pi/2 + (pi*cos(2*t))/4))/4];
-%result = [cos(t),-sin(t),-cos(t)];
+% result = [.999, 0, 0];
