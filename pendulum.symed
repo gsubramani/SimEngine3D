@@ -21,7 +21,7 @@ JOINT/6, DP1, I = 2, J = 6, F = penGen
 !
 !------------------------- GRAVITATIONAL ACCELERATION --------------------------
 !
-ACCGRAV/JGRAV = 0, 0, -9.6500000000
+!ACCGRAV/JGRAV = 0, 0, -9.6500000000
 !
 !----------------------------- ANALYSIS SETTINGS -------------------------------
 !

@@ -259,8 +259,8 @@ classdef SimEngine3D
         function q = positionAnalysis(obj,initq,t)
             obj.t = t;
             initq = reshape(initq,length(initq),1);
-            %q = fsolve(@(q)obj.computephiF(q),initq);
-            q = obj.newtonRaphsonPos(t,initq);
+            q = fsolve(@(q)obj.computephiF(q),initq);
+            %q = obj.newtonRaphsonPos(t,initq);
         end
         
         function q = newtonRaphsonPos(obj,t,initq)
@@ -294,6 +294,31 @@ classdef SimEngine3D
             end
             M = diag(M_diag);
         end
+        
+        function [n_tau] = computeTorques(obj,body,q,qdot,qdotdot,lambdas,t)
+            obj.t = t;
+            Jp = obj.getJ(q);
+            Jpi = Jp(4*body - 3:4*body,4*body - 3:4*body);
+            Jpdot = obj.getJ(qdot);
+            Jpdoti = Jpdot(4*body - 3:4*body,4*body - 3:4*body);
+            phi_qF = obj.computephi_qF(q);
+            
+            phi_pi = phi_qF(1:obj.nc,obj.nb*3 + body*4 - 3:obj.nb*3 + body*4);
+            
+            
+            phi_pp = phi_qF(obj.nc + body,obj.nb*3 + body*4 - 3:obj.nb*3 + body*4);
+            
+            p = q(3*obj.nb+ body*4 - 3 : 3*obj.nb + body*4);
+            %pdot = qdot(3*obj.nb+ body*4 - 3 : 3*obj.nb + body*4);
+            pdotdot = qdotdot(3*obj.nb+ body*4 - 3 : 3*obj.nb + body*4);
+            Gp = getG(p);
+            %Gpdot = getG(pdot);
+            lambdaphi = lambdas(1:obj.nc);
+            lambdap = lambdas(obj.nc + body);
+            n_tau = 2*Gp'\(Jpi*pdotdot + phi_pi'*lambdaphi + phi_pp'*lambdap - 8*Jpdoti*p);
+        end
+        
+        
         function Jp = getJ(obj,q)
             p = q(3*(length(obj.parts) - 1)+ 1 : end);
             Jp = zeros((length(obj.parts) - 1)*4);
