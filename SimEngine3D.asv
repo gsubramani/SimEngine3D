@@ -448,13 +448,12 @@ classdef SimEngine3D
             i = 0;
             normG = 100;
             z = z0;
-            obj.first = 1;
+            
             while(obj.TOL<normG&&i<10)
                 qdotdot = z(1:obj.nb*7,1);
                 lambdasp = z(obj.nb*7 + 1 : 1:obj.nb*7 + obj.nb,1);
                 lambdas = z(obj.nb*7 + obj.nb+1:end,1);
                 [delZ,normG,q,qdot] = obj.computeQuasiNewtonG1(qdotdot,lambdas,lambdasp,q_1,qdot_1,h);
-                obj.first = 0;
                 z = z + delZ;
                 i = i+1;
             end
@@ -470,12 +469,13 @@ classdef SimEngine3D
             qvec(:,1) = q0;
             qdotvec(:,1) = qdot0;
             obj.t = t0;
-            obj.first = 1;
             for ii = 2:n
                 q_1 = qvec(:,ii-1);
                 qdot_1 = qdotvec(:,ii-1);
                 obj.t = h + obj.t;
-                [z,q,qdot] = obj.solveNewton1(q_1,qdot_1,z,h);
+            obj.first = 1;
+                
+                [z,q,qdot] = obj.computeQuasiNewtonG1(q_1,qdot_1,z,h);
                 obj.first = 0;
                 qvec(:,ii) = q;
                 qdotvec(:,ii) = qdot;
