@@ -618,6 +618,15 @@ classdef SimEngine3D
                 zvec(:,ii) = z;
             end
         end
+%         function plotMarkers(obj,q)    
+%             figure(987)
+%             position = [simobj.markers.r]';
+%             orientation = [simobj.markers.a]'
+%             for i = 1:length(obj.markers)
+%                 %quiver3(obj.markers(i).r,zeros(3,1),zeros(3,1),[1;0;0],[0;1;0],[0;0;1])
+%                 
+%             end
+%         end
         
     end
 end

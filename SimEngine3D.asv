@@ -10,6 +10,7 @@ classdef SimEngine3D
         nc
         TOL
         first
+        
     end
     methods
         function obj = SimEngine3D(file_name)
@@ -21,8 +22,9 @@ classdef SimEngine3D
             obj.g = attributes.g;
             obj.nb = length(obj.parts) - 1;
             obj.nc = length(obj.joints);
-            obj.TOL = 0.1;
+            obj.TOL = 0.01;
             obj.first = 1;
+            
         end
         %% Returns the value of the specified constraint
         % flag returns which values are required:
@@ -90,6 +92,12 @@ classdef SimEngine3D
                     out = [zeros(1,3) aj'*getB(pi,ai_) ...
                         zeros(1,3) ai'*getB(pj,aj_)];
                     out = matresize(out,ind_i,ind_j,nb);
+                elseif(flag == 5)
+                    out = [zeros(3,3) zeros(3,4)                 zeros(3,3) zeros(3,4);
+                        zeros(4,3) getK(ai_,aj)               zeros(4,3) getB(pi,aj)'*getB(pj,ai);
+                        zeros(3,3) zeros(3,4)                 zeros(3,3) zeros(3,4);
+                        zeros(4,3) getB(pi,aj)'*getB(pj,ai) zeros(4,3) getK(aj_,ai)];
+                    out = matresize2(out,ind_i,ind_j,nb);
                 else
                     error('Invalid flag');
                 end
@@ -112,7 +120,12 @@ classdef SimEngine3D
                 elseif(flag == 4)
                     out = [-c' -c'*getB(pi,si_) c' c'*getB(pj,sj_)];
                     out = matresize(out,ind_i,ind_j,nb);
-                    
+                elseif(flag == 5)
+                    out = [zeros(3,3) zeros(3,4)   zeros(3,3)   zeros(3,4);
+                        zeros(4,3) -getK(si_,c) zeros(4,3)   zeros(4,4);
+                        zeros(3,3) zeros(3,4)   zeros(3,3)   zeros(3,4);
+                        zeros(4,3) zeros(4,4)   zeros(4,3)   getK(sj_,c)];
+                    out = matresize2(out,ind_i,ind_j,nb);
                 else
                     error('Invalid flag');
                 end
@@ -164,6 +177,17 @@ classdef SimEngine3D
                 error('Constraint not found')
             end
         end
+        function phi_qql = computephi_qql(obj,q,lambdas)
+            q = reshape(q,length(q),1);
+            obj = obj.setq(q);
+            % phi_q is a matrix of obj.nc constraints + euler constraints
+            % (X) variables which are obj.nb*7
+            phi_qql = zeros(7*obj.nb,7*obj.nb);
+            for ii = 1:obj.nc
+                phi_qql =phi_qql  + lambdas(ii)*obj.constraint(ii,5);
+            end
+        end
+        
         function phi_q = computephi_qF(obj,q)
             q = reshape(q,length(q),1);
             obj = obj.setq(q);
@@ -365,7 +389,7 @@ classdef SimEngine3D
             B = [F;tau;gamma_p;gamma];
         end
         
-        function [PSY]  = getPSYg(obj,q,beta,h,mode)
+        function [PSY]  = getPSYg(obj,q,beta,h,lambdas,mode)
             M = obj.getM();
             Jp = obj.getJ(q);
             phi_qF = obj.computephi_qF(q);
@@ -378,23 +402,42 @@ classdef SimEngine3D
                     zeros(4*obj.nb,3*obj.nb),Jp              ,p_pF'                 ,phi_pF';
                     zeros(obj.nb,3*obj.nb)  ,p_pF            ,zeros(obj.nb,obj.nb)  ,zeros(obj.nb,obj.nc);
                     phi_rF                  ,phi_pF          ,zeros(obj.nc,obj.nb)  ,zeros(obj.nc,obj.nc)];
-            elseif(strcmp(mode,'modified'))
-                PSY = [M               ,zeros(3*obj.nb,4*obj.nb),zeros(3*obj.nb,obj.nb),phi_rF';
-                    zeros(4*obj.nb,3*obj.nb),Jp              ,p_pF'                 ,phi_pF';
+            elseif(strcmp(mode,'full'))
+                phi_qql = obj.computephi_qql(q,lambdas);
+                phi11 = M + h^2*beta^2*(phi_qql(1:obj.nb*3,1:obj.nb*3));
+                phi12 = h^2*beta^2*(phi_qql(1:obj.nb*3,obj.nb*3 + 1:end));
+                phi21 = phi12';
+                phi22 = Jp + h^2*beta^2*(phi_qql(obj.nb*3 + 1:end,obj.nb*3 + 1:end));
+                
+                PSY = [phi11               ,phi12,zeros(3*obj.nb,obj.nb),phi_rF';
+                    phi21,phi22             ,p_pF'                 ,phi_pF';
                     zeros(obj.nb,3*obj.nb)  ,p_pF            ,zeros(obj.nb,obj.nb)  ,zeros(obj.nb,obj.nc);
                     phi_rF                  ,phi_pF          ,zeros(obj.nc,obj.nb)  ,zeros(obj.nc,obj.nc)];
-            else %% full
-                PSY = [M               ,zeros(3*obj.nb,4*obj.nb),zeros(3*obj.nb,obj.nb),phi_rF';
-                    zeros(4*obj.nb,3*obj.nb),Jp              ,p_pF'                 ,phi_pF';
-                    zeros(obj.nb,3*obj.nb)  ,p_pF            ,zeros(obj.nb,obj.nb)  ,zeros(obj.nb,obj.nc);
-                    phi_rF                  ,phi_pF          ,zeros(obj.nc,obj.nb)  ,zeros(obj.nc,obj.nc)];
+                
             end
         end
         
         function [delZ,normG,q,qdot] = computeQuasiNewtonG1(obj,qdotdot,lambdas,lambdasp,q_1,qdot_1,h)
             [q,qdot,beta] = xvnBDF1(qdotdot,q_1,qdot_1,h);
             discG = obj.getG(q,qdot,qdotdot,lambdas,lambdasp,beta,h);
-            jacobianG = obj.getPSYg(q,'quasi',beta,h);
+            jacobianG = obj.getPSYg(q,beta,h,lambdas,mode);
+            delZ = -jacobianG\discG;
+            normG = norm(discG);
+        end
+        
+        function [delZ,normG,q,qdot] = computeNewtonG1(obj,qdotdot,lambdas,lambdasp,q_1,qdot_1,h,mode)
+            [q,qdot,beta] = xvnBDF1(qdotdot,q_1,qdot_1,h);
+            discG = obj.getG(q,qdot,qdotdot,lambdas,lambdasp,beta,h);
+            jacobianG = obj.getPSYg(q,beta,h,lambdas,mode);
+            delZ = -jacobianG\discG;
+            normG = norm(discG);
+        end
+        
+        
+        function [delZ,normG,q,qdot] = computeNewtonG2(obj,qdotdot,lambdas,lambdasp,q_1,q_2,qdot_1,qdot_2,h,mode)
+            [q,qdot,beta] = xvnBDF2(qdotdot,q_1,q_2,qdot_1,qdot_2,h);
+            discG = obj.getG(q,qdot,qdotdot,lambdas,lambdasp,beta,h);
+            jacobianG = obj.getPSYg(q,beta,h,lambdas,mode);
             delZ = -jacobianG\discG;
             normG = norm(discG);
         end
@@ -402,7 +445,7 @@ classdef SimEngine3D
         function [delZ,normG,q,qdot] = computeQuasiNewtonG2(obj,qdotdot,lambdas,lambdasp,q_1,q_2,qdot_1,qdot_2,h)
             [q,qdot,beta] = xvnBDF2(qdotdot,q_1,q_2,qdot_1,qdot_2,h);
             discG = obj.getG(q,qdot,qdotdot,lambdas,lambdasp,beta,h);
-            jacobianG = obj.getPSYg(q,'quasi',beta,h);
+            jacobianG = obj.getPSYg(q,beta,h,lambdas,'quasi');
             delZ = -jacobianG\discG;
             normG = norm(discG);
         end
@@ -444,22 +487,82 @@ classdef SimEngine3D
         
         
         
-        function [z,q,qdot] = solveNewton1(obj,q_1,qdot_1,z0,h)
+        function [z,q,qdot] = solveNewton1(obj,q_1,qdot_1,z0,h,mode)
             i = 0;
             normG = 100;
             z = z0;
+            obj.first = 1;
+            if(strcmp(mode,'modified'))
+                qdotdot = z(1:obj.nb*7,1);
+                lambdas = z(obj.nb*7 + obj.nb+1:end,1);
+                [q,qdot,beta] = xvnBDF1(qdotdot,q_1,qdot_1,h);
+                jacobianG = obj.getPSYg(q,beta,h,lambdas,'full');
+                
+                while(obj.TOL<normG&&i<10)
+                    qdotdot = z(1:obj.nb*7,1);
+                    lambdasp = z(obj.nb*7 + 1 : 1:obj.nb*7 + obj.nb,1);
+                    lambdas = z(obj.nb*7 + obj.nb+1:end,1);
+                    %[delZ,normG,q,qdot] = obj.computeQuasiNewtonG1(qdotdot,lambdas,lambdasp,q_1,qdot_1,h);
+                    
+                    [q,qdot,beta] = xvnBDF1(qdotdot,q_1,qdot_1,h);
+                    discG = obj.getG(q,qdot,qdotdot,lambdas,lambdasp,beta,h);
+                    delZ = -jacobianG\discG;
+                    normG = norm(discG);
+                    
+                    obj.first = 0;
+                    z = z + delZ;
+                    i = i+1;
+                end
+                return;
+                
+            end
             
             while(obj.TOL<normG&&i<10)
                 qdotdot = z(1:obj.nb*7,1);
                 lambdasp = z(obj.nb*7 + 1 : 1:obj.nb*7 + obj.nb,1);
                 lambdas = z(obj.nb*7 + obj.nb+1:end,1);
-                [delZ,normG,q,qdot] = obj.computeQuasiNewtonG1(qdotdot,lambdas,lambdasp,q_1,qdot_1,h);
+                %[delZ,normG,q,qdot] = obj.computeQuasiNewtonG1(qdotdot,lambdas,lambdasp,q_1,qdot_1,h);
+                [delZ,normG,q,qdot] = obj.computeNewtonG1(qdotdot,lambdas,lambdasp,q_1,qdot_1,h,mode);
+                obj.first = 0;
                 z = z + delZ;
                 i = i+1;
             end
         end
         
-        function [qvec,qdotvec,zvec] = solveSystemDynamics1(obj,h,n,q0,qdot0,t0)
+        
+        function [z,q,qdot,i] = solveNewton2(obj,q_1,q_2,qdot_1,qdot_2,z0,h,mode)
+            i = 0;
+            normG = 100;
+            z = z0;
+            if(strcmp(mode,'modified'))
+                lambdas = z(obj.nb*7 + obj.nb+1:end,1);
+                qdotdot = z(1:obj.nb*7,1);
+                [q,qdot,beta] = xvnBDF2(qdotdot,q_1,q_2,qdot_1,qdot_2,h);
+                jacobianG = obj.getPSYg(q,beta,h,lambdas,'full');
+                while(obj.TOL<normG&&i<10)
+                    qdotdot = z(1:obj.nb*7,1);
+                    lambdasp = z(obj.nb*7 + 1 : 1:obj.nb*7 + obj.nb,1);
+                    lambdas = z(obj.nb*7 + obj.nb+1:end,1);
+                    [q,qdot,beta] = xvnBDF2(qdotdot,q_1,q_2,qdot_1,qdot_2,h);
+                    discG = obj.getG(q,qdot,qdotdot,lambdas,lambdasp,beta,h);
+                    delZ = -jacobianG\discG;
+                    normG = norm(discG);
+                    z = z + delZ;
+                    i = i+1;
+                end
+                return;
+            end
+            while(obj.TOL<normG&&i<10)
+                qdotdot = z(1:obj.nb*7,1);
+                lambdasp = z(obj.nb*7 + 1 : 1:obj.nb*7 + obj.nb,1);
+                lambdas = z(obj.nb*7 + obj.nb+1:end,1);
+                [delZ,normG,q,qdot] = obj.computeNewtonG2(qdotdot,lambdas,lambdasp,q_1,q_2,qdot_1,qdot_2,h,mode);
+                z = z + delZ;
+                i = i+1;
+            end
+        end
+        
+        function [qvec,qdotvec,zvec] = solveSystemDynamics1(obj,h,n,q0,qdot0,t0,mode)
             
             z = zeros(obj.nb*8 + obj.nc,1);
             qvec = zeros(obj.nb*7,n);
@@ -469,13 +572,12 @@ classdef SimEngine3D
             qvec(:,1) = q0;
             qdotvec(:,1) = qdot0;
             obj.t = t0;
+            obj.first = 1;
             for ii = 2:n
                 q_1 = qvec(:,ii-1);
                 qdot_1 = qdotvec(:,ii-1);
                 obj.t = h + obj.t;
-            obj.first = 1;
-                
-                [z,q,qdot] = obj.computeQuasiNewtonG1(q_1,qdot_1,z,h);
+                [z,q,qdot] = obj.solveNewton1(q_1,qdot_1,z,h,mode);
                 obj.first = 0;
                 qvec(:,ii) = q;
                 qdotvec(:,ii) = qdot;
@@ -483,28 +585,17 @@ classdef SimEngine3D
             end
         end
         
-        function [z,q,qdot] = solveNewton2(obj,q_1,q_2,qdot_1,qdot_2,z0,h)
-            i = 0;
-            normG = 100;
-            z = z0;
-            
-            while(obj.TOL<normG&&i<10)
-                qdotdot = z(1:obj.nb*7,1);
-                lambdasp = z(obj.nb*7 + 1 : 1:obj.nb*7 + obj.nb,1);
-                lambdas = z(obj.nb*7 + obj.nb+1:end,1);
-                [delZ,normG,q,qdot] = obj.computeQuasiNewtonG2(qdotdot,lambdas,lambdasp,q_1,q_2,qdot_1,qdot_2,h);
-                z = z + delZ;
-                i = i+1;
-            end
-        end
+       
         
-        function [qvec,qdotvec,zvec,tvec] = solveSystemDynamics2(obj,h1,h2,n1,n2,q0,qdot0,t0);
+        function [qvec,qdotvec,zvec,tvec,numitr] = solveSystemDynamics2(obj,h1,h2,n1,n2,q0,qdot0,t0,mode)
             
-            [qvec,qdotvec,zvec] = solveSystemDynamics1(obj,h1,n1,q0,qdot0,t0);
+            [qvec,qdotvec,zvec] = solveSystemDynamics1(obj,h1,n1,q0,qdot0,t0,mode);
             tvec = [(1:n1)*h1  n1*h1 + (1:n2)*h2];
             qvec = [qvec zeros(obj.nb*7,n2)];
             qdotvec = [qdotvec zeros(obj.nb*7,n2)];
             zvec = [zvec zeros(obj.nb*8 + obj.nc,n2)];
+            numitr = zeros(n2,1);
+            
             %qvec(:,1) = q0;
             %qdotvec(:,1) = qdot0;
             
@@ -520,10 +611,17 @@ classdef SimEngine3D
                 z = zvec(:,ii-2);
                 
                 obj.t = h2 + obj.t;
-                [z,q,qdot] = obj.solveNewton2(q_1,q_2,qdot_1,qdot_2,z,h2);
+                [z,q,qdot,iter] = obj.solveNewton2(q_1,q_2,qdot_1,qdot_2,z,h2,mode);
+                numitr(ii) = iter;
                 qvec(:,ii) = q;
                 qdotvec(:,ii) = qdot;
                 zvec(:,ii) = z;
+            end
+        end
+        function plotMarkers(obj)    
+            figure(987)
+            for i = 1:length(obj.markers)
+                quiver3(obj.markers(i).r.,zeros(3,1),zeros(3,1),[1;0;0],[0;1;0],[0;0;1])
             end
         end
         
