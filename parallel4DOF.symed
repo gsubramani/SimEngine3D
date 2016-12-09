@@ -1,0 +1,55 @@
+!-------------------------------- Part ----------------------------------
+PART/1, GROUND
+MARKER/1, PART = 1
+! For DP1 constraint: a and b
+MARKER/2, PART = 1, QP = 0, 1, 0
+MARKER/3, PART = 1, QP = 1, 0, 0
+MARKER/4, PART = 1, QP = 0, -1, 0
+MARKER/5, PART = 1, QP = -1, 0, 0
+MARKER/6, PART = 1, QP =  0, 0, 1
+!
+!------- First Level of Links -------------
+!
+PART/2, MASS = 1, IP = 0, 0, -2
+, J = 1, 0, 0, 0, 1, 0, 0, 0, 1
+MARKER/7, PART = 2
+MARKER/8, PART = 2, QP = 1, 0, 0
+MARKER/9, PART = 2, QP = 0, 1, 0
+MARKER/10, PART = 2, QP = 0, 0, 1
+!
+!PART/3, MASS = 1, IP = 0, 0, -2
+!, J = 1, 0, 0, 0, 1, 0, 0, 0, 1
+!MARKER/9, PART = 3
+!MARKER/10, PART = 3, QP = 0, 1, 0
+!MARKER/11, PART = 3, QP = 0, -1, 0
+!
+!PART/4, MASS = 1, IP = 0, 0, -2
+!, J = 1, 0, 0, 0, 1, 0, 0, 0, 1
+!MARKER/12, PART = 4
+!MARKER/13, PART = 4, QP = 0, 1, 0
+!MARKER/14, PART = 4, QP = 0, -1, 0
+!
+!PART/5, MASS = 1, IP = 0, 0, -2
+!, J = 1, 0, 0, 0, 1, 0, 0, 0, 1
+!MARKER/15, PART = 5
+!MARKER/16, PART = 5, QP = 0, 1, 0
+!MARKER/17, PART = 5, QP = 0, -1, 0
+!
+!-------------------------------- CONSTRAINTS ----------------------------------
+JOINT/1, CD, I = 3, J = 7, C = 1,0,0, F = @(x)[0 0 0]'
+JOINT/2, CD, I = 3, J = 7, C = 0,1,0, F = @(x)[0 0 0]'
+JOINT/3, CD, I = 3, J = 7, C = 0,0,1, F = @(x)[0 0 0]'
+JOINT/4, DP1, I = 2, J = 7, F = @(x)[0 0 0]'
+JOINT/5, DP1, I = 3, J = 10, F = @(x)[0 0 0]'
+!-------
+!------------------------- GRAVITATIONAL ACCELERATION --------------------------
+!
+ACCGRAV/JGRAV = 0, 0, -9.6500000000
+!
+!----------------------------- ANALYSIS SETTINGS -------------------------------
+!
+OUTPUT/REQSAVE, GRSAVE
+!
+RESULTS/XRF
+!
+END
