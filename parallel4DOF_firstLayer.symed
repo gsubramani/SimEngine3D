@@ -1,4 +1,3 @@
-!---------------Simple model with 5 bodies(using constraints)-------------
 !-------------------------------- Part ----------------------------------
 PART/1, GROUND
 MARKER/1, PART = 1
@@ -39,18 +38,6 @@ MARKER/20, PART = 5, QP = 1, 0, 0
 MARKER/21, PART = 5, QP = 0, 1, 0
 MARKER/22, PART = 5, QP = 0, 0, 1
 !
-PART/6, MASS = 1, IP = 0, 0, -2
-, J = 1, 0, 0, 0, 1, 0, 0, 0, 1
-MARKER/23, PART = 6, QP = 1, 0, 0
-MARKER/24, PART = 6, QP = 0, 1, 0
-MARKER/25, PART = 6, QP = 0, -1, 0
-MARKER/26, PART = 6, QP = -1, 0, 0
-MARKER/27, PART = 6, QP =  0, 0, 1
-!--Markers for sherical constrains--!
-MARKER/28, PART = 2, QP =  0, -1, 0
-MARKER/29, PART = 3, QP =  0, -1, 0
-MARKER/30, PART = 4, QP =  0, -1, 0
-MARKER/31, PART = 5, QP =  0, -1, 0
 !-------------------------------- CONSTRAINTS ----------------------------------
 !-------FIRST---LAYER---OF---LINKS-------!
 JOINT/1, CD, I = 2, J = 9, C = 1,0,0, F = @(x)[0 0 0]'
@@ -81,12 +68,7 @@ JOINT/22, DP1, I = 3, J = 20, F = @(x)[0 0 0]'
 JOINT/23, DP1, I = 3, J = 21, F = @(x)[0 0 0]'
 JOINT/24, DP1, I = 2, J = 21, F = @(x)[0 0 0]'
 !-------========================-------
-!-------Distance constraints for the two spherical joint links
-JOINT/25, D, I = 28, J = 23, F = @(x)[1 0 0]'
-!-------
-JOINT/26, D, I = 29, J = 24, F = @(x)[1 0 0]'
-!-------
-
+!
 !------------------------- GRAVITATIONAL ACCELERATION --------------------------
 !
 ACCGRAV/JGRAV = 0, 0, -9.6500000000

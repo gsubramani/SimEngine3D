@@ -155,14 +155,14 @@ classdef SimEngine3D
                 
             elseif(strcmp(obj.joints(joint_id).type,'D'))
                 if(flag == 1)
-                    out = dij'*dij - f(1);
+                    out = dij'*dij - f(1)*2;
                     
                 elseif(flag == 2)
                     out =  f(2);
                     
                 elseif(flag == 3)
                     out = -2*dij'*getB(pdotj,sj_)*pdotj ...
-                        + 2*dij'*getB(pdoti,si_)*pdoti - 2*ddotij'*ddotij + f(3);
+                        + 2*dij'*getB(pdoti,si_)*pdoti - 2*(ddotij')*ddotij + f(3);
                     
                     
                 elseif(flag == 4)
