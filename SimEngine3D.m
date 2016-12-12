@@ -10,6 +10,7 @@ classdef SimEngine3D
         nc
         TOL
         first
+        scaling
         
     end
     methods
@@ -24,6 +25,7 @@ classdef SimEngine3D
             obj.nc = length(obj.joints);
             obj.TOL = 0.01;
             obj.first = 1;
+            obj.scaling = 1;
             
         end
         %% Returns the value of the specified constraint
@@ -155,7 +157,7 @@ classdef SimEngine3D
                 
             elseif(strcmp(obj.joints(joint_id).type,'D'))
                 if(flag == 1)
-                    out = dij'*dij - f(1)*2;
+                    out = dij'*dij - (f(1))^2;
                     
                 elseif(flag == 2)
                     out =  f(2);
@@ -166,8 +168,10 @@ classdef SimEngine3D
                     
                     
                 elseif(flag == 4)
-                    out = [-2*dij' 2*dij'*getB(pj,sj_) 2*dij' ...
-                        2*dij'*getB(pj,sj_)];
+                    %out1 = [-2*dij', -2*dij'*getB(pi,si_), 2*dij', ...
+                    %    2*dij'*getB(pj,sj_)];
+                    out = 2*dij'*[-[1 0 0;0 1 0;0 0 1] -getB(pi,si_),...
+                        [1 0 0;0 1 0;0 0 1] getB(pj,sj_)];
                     out = matresize(out,ind_i,ind_j,nb);
                 else
                     error('Invalid flag');
@@ -284,9 +288,28 @@ classdef SimEngine3D
         
         function q = positionAnalysis(obj,initq,t)
             obj.t = t;
+            obj.nb = length(obj.parts) - 1;
             initq = reshape(initq,length(initq),1);
-            q = fsolve(@(q)obj.computephiF(q),initq);
-            %q = obj.newtonRaphsonPos(t,initq);
+            obj.scaling = ones(obj.nb*7,1);
+            obj.scaling(1:obj.nb*3,1) = ones(obj.nb*3,1);
+            options = optimoptions('fsolve','Jacobian','on');
+            %options.MaxIter = 100*obj.nb*7;
+            options.MaxIter = 400;
+            %q_scaled = fsolve(@(q)obj.constructNewRaphOutput(q,t),initq,options);
+            %q  =q_scaled./obj.scaling;
+            q = obj.newtonRaphsonPos(t,initq);
+        end
+        
+        function [val,jac] = constructNewRaphOutput(obj,scaled_initq,t)
+            obj.t = t;
+            %scaling
+            initq = scaled_initq./obj.scaling;
+            val = obj.computephiF(initq);
+            jac = obj.computephi_qF(initq);
+            close all;
+            obj.plotBodies(initq)
+            
+            
         end
         
         function q = newtonRaphsonPos(obj,t,initq)
@@ -295,9 +318,11 @@ classdef SimEngine3D
             obj.t = t;
             q = reshape(initq,length(initq),1);
             valnorm = 10;
-            while(valnorm>TOL2 && i<100)
+            while(valnorm>TOL2 && i<1000)
                 q = q - obj.computephi_qF(q)\obj.computephiF(q);
                 valnorm = norm(obj.computephiF(q));
+               
+                i = i + 1
             end
         end
         
@@ -618,15 +643,50 @@ classdef SimEngine3D
                 zvec(:,ii) = z;
             end
         end
-%         function plotMarkers(obj,q)    
-%             figure(987)
-%             position = [simobj.markers.r]';
-%             orientation = [simobj.markers.a]'
-%             for i = 1:length(obj.markers)
-%                 %quiver3(obj.markers(i).r,zeros(3,1),zeros(3,1),[1;0;0],[0;1;0],[0;0;1])
-%                 
-%             end
-%         end
+        function plotBodies(obj,q)    
+            positions = reshape(q(1:obj.nb*3),3,obj.nb);
+            %plot3(positions(1,:),positions(2,:),positions(3,:),'*')
+            %axis equal;
+            %qiverx = zeros(3,obj.nb);
+            %qivery = zeros(3,obj.nb);
+            %qiverz = zeros(3,obj.nb);
+            %quivermat = zeros(3,3);
+            for jj = 1:obj.nb
+                Ai = p2A((q(obj.nb*3 + jj*4 - 3:obj.nb*3 + jj*4)));
+                %quivermat(:,i) = Ai*[1 0 0]';
+                %quivermat(:,i) = Ai*[0 1 0]';
+                %quivermat(:,i) = Ai*[0 0 1]';
+                
+                hold on;
+                xv = (Ai(1,:)/norm(Ai(1,:)))';
+                yv = (Ai(2,:)/norm(Ai(2,:)))';
+                zv = (Ai(3,:)/norm(Ai(3,:)))';
+                hold on;
+                plot3(repmat(positions(1,jj),3,1),...
+                    repmat(positions(2,jj),3,1),...
+                    repmat(positions(3,jj),3,1),'*')
+                hold on;
+                quiver3(repmat(positions(1,jj),3,1),...
+                    repmat(positions(2,jj),3,1),...
+                    repmat(positions(3,jj),3,1),xv,yv,zv)
+            end
+            for jj = 1:length(obj.markers)
+                if(obj.markers(jj).part == 1)
+                    r0 = [0,0,0]';
+                    Ai = [1 0 0;0 1 0;0 0 1];
+                else
+                    index = (obj.markers(jj).part - 1);
+                    r0 = q(index*3 - 2:index*3);
+                    Ai = p2A((q(obj.nb*3 + index*4 - 3:obj.nb*3 + index*4)));
+                end
+                ai = obj.markers(jj).r;
+                r = r0 + Ai*ai;
+                hold on;
+                plot3([r0(1) r(1)]',[r0(2) r(2)]',[r0(3) r(3)]','o-');
+            end
+            axis equal;
+            hold off;
+        end
         
     end
 end

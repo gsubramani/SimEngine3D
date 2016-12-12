@@ -136,10 +136,10 @@ for i = 1:length(lines)
                 attributes.joints(jointIndex).i ...
                     = str2double(lineItem(anItem + 1));
             end
-            if(strcmp(lineItem(anItem),'D'))
-                attributes.joints(jointIndex).d ...
-                    = str2double(lineItem(anItem + 1));
-            end
+%            if(strcmp(lineItem(anItem),'D'))
+%                attributes.joints(jointIndex).d ...
+%                    = str2double(lineItem(anItem + 1));
+%            end
             if(strcmp(lineItem(anItem),'J'))
                 attributes.joints(jointIndex).j ...
                     = str2double(lineItem(anItem + 1));
