@@ -23,7 +23,7 @@ classdef SimEngine3D
             obj.g = attributes.g;
             obj.nb = length(obj.parts) - 1;
             obj.nc = length(obj.joints);
-            obj.TOL = 0.01;
+            obj.TOL = 0.001;
             obj.first = 1;
             obj.scaling = 1;
             
@@ -645,19 +645,12 @@ classdef SimEngine3D
         end
         function plotBodies(obj,q)    
             positions = reshape(q(1:obj.nb*3),3,obj.nb);
-            %plot3(positions(1,:),positions(2,:),positions(3,:),'*')
-            %axis equal;
-            %qiverx = zeros(3,obj.nb);
-            %qivery = zeros(3,obj.nb);
-            %qiverz = zeros(3,obj.nb);
-            %quivermat = zeros(3,3);
+            hold on;
             for jj = 1:obj.nb
                 Ai = p2A((q(obj.nb*3 + jj*4 - 3:obj.nb*3 + jj*4)));
-                %quivermat(:,i) = Ai*[1 0 0]';
-                %quivermat(:,i) = Ai*[0 1 0]';
-                %quivermat(:,i) = Ai*[0 0 1]';
+
                 
-                hold on;
+                
                 xv = (Ai(1,:)/norm(Ai(1,:)))';
                 yv = (Ai(2,:)/norm(Ai(2,:)))';
                 zv = (Ai(3,:)/norm(Ai(3,:)))';

@@ -58,28 +58,28 @@ JOINT/2, CD, I = 2, J = 9, C = 0,1,0, F = @(x)[0 0 0]'
 JOINT/3, CD, I = 2, J = 9, C = 0,0,1, F = @(x)[0 0 0]'
 JOINT/4, DP1, I = 3, J = 8, F = @(x)[0 0 0]'
 JOINT/5, DP1, I = 3, J = 9, F = @(x)[0 0 0]'
-JOINT/6, DP1, I = 2, J = 9, F = @(x)[-0.18 0 0]'
+JOINT/6, DP1, I = 2, J = 9, F = @(x)[-0.2 0 0]'
 !-------
 JOINT/7, CD, I = 3, J = 13, C = 1,0,0, F = @(x)[0 0 0]'
 JOINT/8, CD, I = 3, J = 13, C = 0,1,0, F = @(x)[0 0 0]'
 JOINT/9, CD, I = 3, J = 13, C = 0,0,1, F = @(x)[0 0 0]'
 JOINT/10, DP1, I = 3, J = 12, F = @(x)[0 0 0]'
 JOINT/11, DP1, I = 2, J = 13, F = @(x)[0 0 0]'
-JOINT/12, DP1, I = 3, J = 13, F = @(x)[-0.2 0 0]'
+JOINT/12, DP1, I = 3, J = 13, F = @(x)[0.3 0 0]'
 !-------
 JOINT/13, CD, I = 4, J = 17, C = 1,0,0, F = @(x)[0 0 0]'
 JOINT/14, CD, I = 4, J = 17, C = 0,1,0, F = @(x)[0 0 0]'
 JOINT/15, CD, I = 4, J = 17, C = 0,0,1, F = @(x)[0 0 0]'
 JOINT/16, DP1, I = 3, J = 16, F = @(x)[0 0 0]'
 JOINT/17, DP1, I = 2, J = 17, F = @(x)[0 0 0]'
-JOINT/18, DP1, I = 3, J = 17, F = @(x)[-0.35 0 0]'
+JOINT/18, DP1, I = 3, J = 17, F = @(x)[-0.2 0 0]'
 !-------
 JOINT/19, CD, I = 5, J = 21, C = 1,0,0, F = @(x)[0 0 0]'
 JOINT/20, CD, I = 5, J = 21, C = 0,1,0, F = @(x)[0 0 0]'
 JOINT/21, CD, I = 5, J = 21, C = 0,0,1, F = @(x)[0 0 0]'
 JOINT/22, DP1, I = 3, J = 20, F = @(x)[0 0 0]'
 JOINT/23, DP1, I = 3, J = 21, F = @(x)[0 0 0]'
-JOINT/24, DP1, I = 2, J = 21, F = @(x)[-0.1 0 0]'
+JOINT/24, DP1, I = 2, J = 21, F = @(x)[-0.2 0 0]'
 !-------========================-------
 !-------Distance constraints for the two spherical joint links
 JOINT/25, D, I = 28, J = 23, F = @(x)[2 0 0]'
@@ -88,7 +88,7 @@ JOINT/26, D, I = 29, J = 24, F = @(x)[2 0 0]'
 !-------
 JOINT/27, D, I = 30, J = 25, F = @(x)[2 0 0]'
 !-------
-JOINT/28, D, I = 31, J = 26, F = @(x)[0.5 0 0]'
+JOINT/28, D, I = 31, J = 26, F = @(x)[2 0 0]'
 !-------DP1 Constraints for parallel joints 
 JOINT/29, DP1, I = 24, J = 8, F = @(x)[0 0 0]'
 JOINT/30, DP1, I = 24, J = 9, F = @(x)[0 0 0]'

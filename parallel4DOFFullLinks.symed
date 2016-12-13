@@ -1,0 +1,196 @@
+!-------------------------------- Part ----------------------------------
+PART/1, GROUND
+MARKER/1, PART = 1
+! For DP1 constraint: a and b
+MARKER/2, PART = 1, QP = 1, 0, 0
+MARKER/3, PART = 1, QP = 0, 1, 0
+MARKER/4, PART = 1, QP = 0, -1, 0
+MARKER/5, PART = 1, QP = -1, 0, 0
+MARKER/6, PART = 1, QP =  0, 0, 1
+!
+!------- First Level of Links -------------
+!
+PART/2, MASS = 1, IP = 0, 0, -2
+, J = 1, 0, 0, 0, 1, 0, 0, 0, 1
+MARKER/7, PART = 2
+MARKER/8, PART = 2, QP = 1, 0, 0
+MARKER/9, PART = 2, QP = 0, 1, 0
+MARKER/10, PART = 2, QP = 0, 0, 1
+!
+PART/3, MASS = 1, IP = 0, 0, -2
+, J = 1, 0, 0, 0, 1, 0, 0, 0, 1
+MARKER/11, PART = 3
+MARKER/12, PART = 3, QP = 1, 0, 0
+MARKER/13, PART = 3, QP = 0, 1, 0
+MARKER/14, PART = 3, QP = 0, 0, 1
+!
+PART/4, MASS = 1, IP = 0, 0, -2
+, J = 1, 0, 0, 0, 1, 0, 0, 0, 1
+MARKER/15, PART = 4
+MARKER/16, PART = 4, QP = 1, 0, 0
+MARKER/17, PART = 4, QP = 0, 1, 0
+MARKER/18, PART = 4, QP = 0, 0, 1
+!
+PART/5, MASS = 1, IP = 0, 0, -2
+, J = 1, 0, 0, 0, 1, 0, 0, 0, 1
+MARKER/19, PART = 5
+MARKER/20, PART = 5, QP = 1, 0, 0
+MARKER/21, PART = 5, QP = 0, 1, 0
+MARKER/22, PART = 5, QP = 0, 0, 1
+!
+!----SECOND LEVEL OF PARTS
+PART/6, MASS = 1, IP = 0, 0, -2
+, J = 1, 0, 0, 0, 1, 0, 0, 0, 1
+MARKER/23, PART = 6
+MARKER/24, PART = 6, QP = 1, 0, 0
+MARKER/25, PART = 6, QP = 0, 1, 0
+MARKER/26, PART = 6, QP = 0, 0, 1
+!
+MARKER/27, PART = 2, QP = 0, -1, 0
+!
+PART/7, MASS = 1, IP = 0, 0, -2
+, J = 1, 0, 0, 0, 1, 0, 0, 0, 1
+MARKER/28, PART = 7
+MARKER/29, PART = 7, QP = 1, 0, 0
+MARKER/30, PART = 7, QP = 0, 1, 0
+MARKER/31, PART = 7, QP = 0, 0, 1
+!
+MARKER/32, PART = 5, QP = 0, -1, 0
+!---- DOUBLE PARALLEL JOINTS
+PART/8, MASS = 1, IP = 9, 0, -5
+, J = 1, 0, 0, 0, 1, 0, 0, 0, 1
+MARKER/33, PART = 8
+MARKER/34, PART = 8, QP = 1, 0, 0
+MARKER/35, PART = 8, QP = 0, 1, 0
+MARKER/36, PART = 8, QP = 0, 0, 1
+!
+MARKER/37, PART = 4, QP = -0.25, -1, 0
+!
+PART/9, MASS = 1, IP = 9, 0, -5
+, J = 1, 0, 0, 0, 1, 0, 0, 0, 1
+MARKER/38, PART = 9
+MARKER/39, PART = 9, QP = 1, 0, 0
+MARKER/40, PART = 9, QP = 0, 1, 0
+MARKER/41, PART = 9, QP = 0, 0, 1
+!
+MARKER/42, PART = 4, QP = 0.25, -1, 0
+!---- COUNTER PARALLEL JOINT - SPHERICAL JOINT
+MARKER/43, PART = 4, QP = -0.25, -1, 0
+!
+PART/10, MASS = 1, IP = 9, 0, -5
+, J = 1, 0, 0, 0, 1, 0, 0, 0, 1
+MARKER/44, PART = 10
+MARKER/45, PART = 10, QP = 1, 0, 0
+MARKER/46, PART = 10, QP = 0, 1, 0
+MARKER/47, PART = 10, QP = 0, 0, 1
+!
+MARKER/48, PART = 3, QP = 0, -1, 0
+!---- EEF ----
+PART/11,MASS = 1, IP = 9, 0, -5
+, J = 1, 0, 0, 0, 1, 0, 0, 0, 1 
+MARKER/49, PART = 11
+MARKER/50, PART = 11, QP = 1, 0, 0
+MARKER/51, PART = 11, QP = 0, 1, 0
+MARKER/52, PART = 11, QP = 0, -1, 0
+MARKER/53, PART = 11, QP = -1, 0, 0
+MARKER/54, PART = 11, QP =  0, 0, 1
+MARKER/55, PART = 11, QP = 0.25, 1, 0
+MARKER/56, PART = 11, QP = -0.25, 1, 0
+!
+MARKER/57, PART = 9, QP = 0, -1, 0
+MARKER/58, PART = 8, QP = 0, -1, 0
+!
+MARKER/59, PART = 10, QP = 0, -1, 0
+!
+MARKER/60, PART = 7, QP = 0, -1, 0
+MARKER/61, PART = 6, QP = 0, -1, 0
+!-------------------------------- CONSTRAINTS ----------------------------------
+!-------FIRST---LAYER---OF---LINKS-------!
+JOINT/1, CD, I = 2, J = 9, C = 1,0,0, F = @(x)[0 0 0]'
+JOINT/2, CD, I = 2, J = 9, C = 0,1,0, F = @(x)[0 0 0]'
+JOINT/3, CD, I = 2, J = 9, C = 0,0,1, F = @(x)[0 0 0]'
+JOINT/4, DP1, I = 3, J = 8, F = @(x)[0 0 0]'
+JOINT/5, DP1, I = 3, J = 9, F = @(x)[0 0 0]'
+!JOINT/6, DP1, I = 2, J = 9, F = @(x)[-0.2 0 0]'
+!-------
+JOINT/7, CD, I = 3, J = 13, C = 1,0,0, F = @(x)[0 0 0]'
+JOINT/8, CD, I = 3, J = 13, C = 0,1,0, F = @(x)[0 0 0]'
+JOINT/9, CD, I = 3, J = 13, C = 0,0,1, F = @(x)[0 0 0]'
+JOINT/10, DP1, I = 3, J = 12, F = @(x)[0 0 0]'
+JOINT/11, DP1, I = 2, J = 13, F = @(x)[0 0 0]'
+!JOINT/12, DP1, I = 3, J = 13, F = @(x)[-0.3 0 0]'
+!-------
+JOINT/13, CD, I = 4, J = 17, C = 1,0,0, F = @(x)[0 0 0]'
+JOINT/14, CD, I = 4, J = 17, C = 0,1,0, F = @(x)[0 0 0]'
+JOINT/15, CD, I = 4, J = 17, C = 0,0,1, F = @(x)[0 0 0]'
+JOINT/16, DP1, I = 3, J = 16, F = @(x)[0 0 0]'
+JOINT/17, DP1, I = 2, J = 17, F = @(x)[0 0 0]'
+!JOINT/18, DP1, I = 3, J = 17, F = @(x)[0.2 0 0]'
+!-------
+JOINT/19, CD, I = 5, J = 21, C = 1,0,0, F = @(x)[0 0 0]'
+JOINT/20, CD, I = 5, J = 21, C = 0,1,0, F = @(x)[0 0 0]'
+JOINT/21, CD, I = 5, J = 21, C = 0,0,1, F = @(x)[0 0 0]'
+JOINT/22, DP1, I = 3, J = 20, F = @(x)[0 0 0]'
+JOINT/23, DP1, I = 3, J = 21, F = @(x)[0 0 0]'
+!JOINT/24, DP1, I = 2, J = 21, F = @(x)[0.2 0 0]'
+!------- JOINTS CORRESPONDING TO SECOND LEVEL LINKS
+!--JOINTS CORRESPONDING TO THE PARALLEL MECHANISM
+JOINT/25, CD, I = 25, J = 27, C = 1,0,0, F = @(x)[0 0 0]'
+JOINT/26, CD, I = 25, J = 27, C = 0,1,0, F = @(x)[0 0 0]'
+JOINT/27, CD, I = 25, J = 27, C = 0,0,1, F = @(x)[0 0 0]'
+!-------
+JOINT/28, CD, I = 30, J = 32, C = 1,0,0, F = @(x)[0 0 0]'
+JOINT/29, CD, I = 30, J = 32, C = 0,1,0, F = @(x)[0 0 0]'
+JOINT/30, CD, I = 30, J = 32, C = 0,0,1, F = @(x)[0 0 0]'
+!-----PARALLEL LINKS CD CONSTRAINTS
+JOINT/31, CD, I = 35, J = 37, C = 1,0,0, F = @(x)[0 0 0]'
+JOINT/32, CD, I = 35, J = 37, C = 0,1,0, F = @(x)[0 0 0]'
+JOINT/33, CD, I = 35, J = 37, C = 0,0,1, F = @(x)[0 0 0]'
+!-------
+JOINT/34, CD, I = 40, J = 42, C = 1,0,0, F = @(x)[0 0 0]'
+JOINT/35, CD, I = 40, J = 42, C = 0,1,0, F = @(x)[0 0 0]'
+JOINT/36, CD, I = 40, J = 42, C = 0,0,1, F = @(x)[0 0 0]'
+!-----PARALLEL LINKS DP1 CONSTRAINS
+JOINT/37, DP1, I = 34, J = 18, F = @(x)[0 0 0]'
+JOINT/38, DP1, I = 39, J = 18, F = @(x)[0 0 0]'
+!-----COUNTER PARALLEL LINK CD CONSTRAINT
+JOINT/39, CD, I = 46, J = 48, C = 1,0,0, F = @(x)[0 0 0]'
+JOINT/40, CD, I = 46, J = 48, C = 0,1,0, F = @(x)[0 0 0]'
+JOINT/41, CD, I = 46, J = 48, C = 0,0,1, F = @(x)[0 0 0]'
+!-----EEF LINK CD CONSTRAINTS WITH PARALLEL JOINTS
+JOINT/42, CD, I = 57, J = 55, C = 1,0,0, F = @(x)[0 0 0]'
+JOINT/43, CD, I = 57, J = 55, C = 0,1,0, F = @(x)[0 0 0]'
+JOINT/44, CD, I = 57, J = 55, C = 0,0,1, F = @(x)[0 0 0]'
+!
+JOINT/42, CD, I = 56, J = 58, C = 1,0,0, F = @(x)[0 0 0]'
+JOINT/43, CD, I = 56, J = 58, C = 0,1,0, F = @(x)[0 0 0]'
+JOINT/44, CD, I = 56, J = 58, C = 0,0,1, F = @(x)[0 0 0]'
+!-----PARALLEL LINKS DP1 CONSTRAINS WITH EEF
+JOINT/37, DP1, I = 34, J = 50, F = @(x)[0 0 0]'
+JOINT/38, DP1, I = 39, J = 50, F = @(x)[0 0 0]'
+!-----EEF LINK CD CONSTRAINTS WITH SPHERICAL JOINT
+JOINT/39, CD, I = 52, J = 59, C = 1,0,0, F = @(x)[0 0 0]'
+JOINT/40, CD, I = 52, J = 59, C = 0,1,0, F = @(x)[0 0 0]'
+JOINT/41, CD, I = 52, J = 59, C = 0,0,1, F = @(x)[0 0 0]'
+!-----EEF LINK CD CONSTRAINTS WITH FINAL 2 SPHERICAL JOINTS
+JOINT/42, CD, I = 50, J = 60, C = 1,0,0, F = @(x)[0 0 0]'
+JOINT/43, CD, I = 50, J = 60, C = 0,1,0, F = @(x)[0 0 0]'
+JOINT/44, CD, I = 50, J = 60, C = 0,0,1, F = @(x)[0 0 0]'
+!
+JOINT/45, CD, I = 53, J = 61, C = 1,0,0, F = @(x)[0 0 0]'
+JOINT/46, CD, I = 53, J = 61, C = 0,1,0, F = @(x)[0 0 0]'
+JOINT/47, CD, I = 53, J = 61, C = 0,0,1, F = @(x)[0 0 0]'
+!-------========================-------
+!
+!------------------------- GRAVITATIONAL ACCELERATION --------------------------
+!
+ACCGRAV/JGRAV = 0, 0, -9.6500000000
+!ACCGRAV/JGRAV = 0, 0, 0
+!
+!----------------------------- ANALYSIS SETTINGS -------------------------------
+!
+OUTPUT/REQSAVE, GRSAVE
+!
+RESULTS/XRF
+!
+END
