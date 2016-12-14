@@ -661,7 +661,11 @@ classdef SimEngine3D
                 hold on;
                 quiver3(repmat(positions(1,jj),3,1),...
                     repmat(positions(2,jj),3,1),...
-                    repmat(positions(3,jj),3,1),xv,yv,zv)
+                    repmat(positions(3,jj),3,1),xv,yv,zv,'linewidth',3)
+                hold on;
+                text(repmat(positions(1,jj),3,1),...
+                    repmat(positions(2,jj),3,1),...
+                    repmat(positions(3,jj),3,1),['   ' num2str(jj)])
             end
             for jj = 1:length(obj.markers)
                 if(obj.markers(jj).part == 1)
@@ -676,6 +680,7 @@ classdef SimEngine3D
                 r = r0 + Ai*ai;
                 hold on;
                 plot3([r0(1) r(1)]',[r0(2) r(2)]',[r0(3) r(3)]','o-');
+                %text(r(1),r(2),r(3),['   ' num2str(jj)])
             end
             axis equal;
             hold off;
